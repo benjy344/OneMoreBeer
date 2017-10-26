@@ -156,12 +156,10 @@ function setup() {
     stage.addChild(bg6);
 
     var textPoints = new PIXI.Text(nbPoints+ 'm', style);
-    textPoints.x = window.innerWidth - 20 - textPoints.width;
     textPoints.y = 20;
     stage.addChild(textPoints);
 
     var textBest = new PIXI.Text('record : ' + best, style2);
-    textBest.x = window.innerWidth - 25 - textBest.width;
     textBest.y = 65;
     stage.addChild(textBest);
 
@@ -256,6 +254,9 @@ function setup() {
 
         textPoints.text = showPoints + 'm';
         textPoints.x = window.innerWidth - 20 - textPoints.width;
+
+        textBest.text = 'record : ' + best;
+        textBest.x = window.innerWidth - 25 - textBest.width;
 
         if (!PAUSED) requestAnimationFrame(gameLoop);
         renderer.render(stage);
