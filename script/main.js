@@ -46,7 +46,7 @@ renderer.view.style.position = "absolute";
 renderer.autoResize = true;
 
 //load an image and run the `setup` function when it's done
-// @TODO verif loader 
+// @TODO verif loader
 loader
     .add("images/link.png")
     .add("images/background.png")
@@ -83,7 +83,7 @@ function setup() {
     bg2.tilePosition.x = 0;
     bg2.tilePosition.y = 0;
     stage.addChild(bg2);
-
+    
     var bg3Texture = PIXI.Texture.fromImage("images/background3.png");
     var bg3 = new PIXI.extras.TilingSprite(bg3Texture, window.innerWidth, window.innerHeight);
     bg3.tilePosition.x = 0;
@@ -111,7 +111,7 @@ function setup() {
     stage.addChild(link);
 
 
-    // PLAYER 
+    // PLAYER
     // create an array of textures from an image path
     var frames = [];
 
@@ -172,12 +172,12 @@ function setup() {
         bg2.tilePosition.x -= 1;
         badLink.x -= 2;
 
-        resize(bg6, bg5Texture);
+        resize(bg6, bg6Texture);
         resize(bg5, bg5Texture);
-        resize(bg4, bg5Texture);
-        resize(bg3, bg5Texture);
-        resize(bg2, bg5Texture);
-        resize(bg1, bg5Texture);
+        resize(bg4, bg4Texture);
+        resize(bg3, bg3Texture);
+        resize(bg2, bg2Texture);
+        resize(bg1, bg1Texture);
 
 
 
