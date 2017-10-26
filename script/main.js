@@ -6,8 +6,6 @@ if (!PIXI.utils.isWebGLSupported()) {
 PIXI.utils.sayHello(type);
 
 
-
-
 //Aliases
 var Container = PIXI.Container,
     autoDetectRenderer = PIXI.autoDetectRenderer,
@@ -26,9 +24,6 @@ var stage = new Container(),
         resolution: 1
     });
 
-renderer.interactive = true;
-
-
 var style = new PIXI.TextStyle({
     fontFamily: 'Arial',
     fontSize: 36,
@@ -40,8 +35,6 @@ var style = new PIXI.TextStyle({
     wordWrapWidth: 440
 });
 
-var ennemiStage = new PIXI.Container();
-
 var PAUSED = false;
 var nbPoints = 0;
 
@@ -51,9 +44,6 @@ document.body.appendChild(renderer.view);
 renderer.view.style.position = "absolute";
 // renderer.view.style.display = "block";
 renderer.autoResize = true;
-
-renderer.render(stage);
-
 
 //load an image and run the `setup` function when it's done
 
@@ -77,15 +67,11 @@ function loadProgressHandler(loader, resource) {
 
 
 function setup() {
-    var farTexture = PIXI.Texture.fromImage("images/background.png");
-
 
     var farTexture = PIXI.Texture.fromImage("images/background.png");
-    var far = new PIXI.Sprite(PIXI.loader.resources["images/background.png"].texture);
-    far = new PIXI.extras.TilingSprite(farTexture, window.innerWidth, window.innerHeight);
+    var far = new PIXI.extras.TilingSprite(farTexture, window.innerWidth, window.innerHeight);
     far.tilePosition.x = 0;
     far.tilePosition.y = 0;
-
     stage.addChild(far);
 
     var richText = new PIXI.Text(nbPoints + ' mètre', style);
@@ -94,42 +80,43 @@ function setup() {
     stage.addChild(richText);
 
 
-    // requestAnimFrame(update);
-
     // LINK
     var texture = TextureCache["images/link.png"];
     var rectangle = new PIXI.Rectangle(0, 96, 32, 32);
     texture.frame = rectangle;
-    var rocket = new Sprite(texture);
-    rocket.x = 32;
-    stage.addChild(rocket);
+    var link = new Sprite(texture);
+    link.x = 32;
+    stage.addChild(link);
 
 
     // BAD LINK
     var badLink = new Sprite(texture);
     badLink.interactive = true;
     badLink.x = window.innerWidth + 200;
-    ennemiStage.addChild(badLink);
+    stage.addChild(badLink);
 
-
-    stage.addChild(ennemiStage);
-    renderer.render(stage);
 
     gameLoop();
 
     function gameLoop() {
         far.tilePosition.x -= 2;
-        badLink.x -= 5;
+        badLink.x -= 2;
+
+
+        far.height = farTexture.height;
+        far.width = farTexture.width;
+
+        far.scale.y = (window.innerHeight / farTexture.height);
+        far.scale.x = (window.innerHeight / farTexture.height);
 
         renderer.resize(window.innerWidth, window.innerHeight);
-        far.height = window.innerHeight;
-        far.width = window.innerWidth;
+
 
         badLink.y = window.innerHeight - (window.innerHeight / 6.4);
-        rocket.y = window.innerHeight - (window.innerHeight / 6.4);
+        link.y = window.innerHeight - (window.innerHeight / 6.4);
 
 
-        if (boxesIntersect(rocket, badLink)) {
+        if (boxesIntersect(link, badLink)) {
             badLink.x = window.innerWidth + 200;
             dead();
         }
@@ -141,7 +128,7 @@ function setup() {
 
 
         nbPoints++;
-        showPoints = Math.floor(nbPoints / 50);
+        showPoints = Math.floor(nbPoints / 60);
         var s = (showPoints > 1) ? 's' : '';
         richText.text = showPoints + ' mètre' + s;
         richText.x = window.innerWidth - 20 - richText.width;
@@ -159,8 +146,6 @@ function setup() {
         stage.addChild(looseText);
 
         PAUSED = true;
-
-
 
         setTimeout(function() {
             nbPoints = 0;
@@ -181,10 +166,12 @@ function boxesIntersect(a, b) {
 }
 
 
+renderer.interactive = true;
+
+
 var initialPoint;
 
 var finalPoint;
-
 
 
 renderer.touchstart = function(interactionData) {
