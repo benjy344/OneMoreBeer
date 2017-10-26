@@ -69,7 +69,8 @@ function loadProgressHandler(loader, resource) {
 
 function setup() {
 
-    
+    // var sound = PIXI.sound.Sound.from('sounds/game.mp3');
+    // sound.play();
 
     var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
     var bg1 = new PIXI.extras.TilingSprite(bg1Texture, window.innerWidth, window.innerHeight);
@@ -114,7 +115,7 @@ function setup() {
     // create an array of textures from an image path
     var frames = [];
 
-    for (var i = 0; i < 57; i++) {
+    for (var i = 0; i < 55; i++) {
         var val = i;
         // magically works since the spritesheet was loaded with the pixi loader
         frames.push(PIXI.Texture.fromFrame('player' + val + '.png'));
@@ -126,12 +127,12 @@ function setup() {
      * An AnimatedSprite inherits all the properties of a PIXI sprite
      * so you can change its position, its anchor, mask it, etc
      */
-    player.x = app.renderer.width / 2;;
-    player.y = 250;;
+    player.x = app.renderer.width / 2;
+    player.y = 270;
     player.anchor.set(0.5);
     player.animationSpeed = 0.5;
-    player.height = 170;
-    player.width = 170;
+    player.height = 120;
+    player.width = 250;
     player.play();
     stage.addChild(player);
 
@@ -199,7 +200,7 @@ function setup() {
 
 
         nbPoints++;
-        showPoints = Math.floor(nbPoints / 60);
+        showPoints = Math.floor(nbPoints / 40);
         richText.text = showPoints + 'm';
         richText.x = window.innerWidth - 20 - richText.width;
 
@@ -222,6 +223,10 @@ function setup() {
             // PAUSED = false;
             // gameLoop();
         }, 1500);
+    }
+
+    function pause (argument) {
+         PAUSED = true;
     }
 
 }
