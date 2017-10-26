@@ -46,7 +46,7 @@ renderer.view.style.position = "absolute";
 renderer.autoResize = true;
 
 //load an image and run the `setup` function when it's done
-
+// @TODO verif loader 
 loader
     .add("images/link.png")
     .add("images/background.png")
@@ -68,18 +68,46 @@ function loadProgressHandler(loader, resource) {
 
 
 function setup() {
+
     
-    var farTexture = PIXI.Texture.fromImage("images/background.png");
-    var far = new PIXI.extras.TilingSprite(farTexture, window.innerWidth, window.innerHeight);
-    far.tilePosition.x = 0;
-    far.tilePosition.y = 0;
-    stage.addChild(far);
 
+    var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
+    var bg1 = new PIXI.extras.TilingSprite(bg1Texture, window.innerWidth, window.innerHeight);
+    bg1.tilePosition.x = 0;
+    bg1.tilePosition.y = 0;
+    stage.addChild(bg1);
 
-    var richText = new PIXI.Text(nbPoints + ' mètre', style);
-    richText.x = window.innerWidth - 20 - richText.width;
-    richText.y = 20;
-    stage.addChild(richText);
+    var bg2Texture = PIXI.Texture.fromImage("images/background2.png");
+    var bg2 = new PIXI.extras.TilingSprite(bg2Texture, window.innerWidth, window.innerHeight);
+    bg2.tilePosition.x = 0;
+    bg2.tilePosition.y = 0;
+    stage.addChild(bg2);
+
+    var bg3Texture = PIXI.Texture.fromImage("images/background3.png");
+    var bg3 = new PIXI.extras.TilingSprite(bg3Texture, window.innerWidth, window.innerHeight);
+    bg3.tilePosition.x = 0;
+    bg3.tilePosition.y = 0;
+    stage.addChild(bg3);
+
+    var bg4Texture = PIXI.Texture.fromImage("images/background4.png");
+    var bg4 = new PIXI.extras.TilingSprite(bg4Texture, window.innerWidth, window.innerHeight);
+    bg4.tilePosition.x = 0;
+    bg4.tilePosition.y = 0;
+    stage.addChild(bg4);
+
+    var bg5Texture = PIXI.Texture.fromImage("images/background5.png");
+    var bg5 = new PIXI.extras.TilingSprite(bg5Texture, window.innerWidth, window.innerHeight);
+    bg5.tilePosition.x = 0;
+    bg5.tilePosition.y = 0;
+    stage.addChild(bg5);
+    // LINK
+    var texture = TextureCache["images/link.png"];
+    var rectangle = new PIXI.Rectangle(0, 96, 32, 32);
+    texture.frame = rectangle;
+    var link = new Sprite(texture);
+    link.x = 32;
+    link.height = 150;
+    stage.addChild(link);
 
 
     // PLAYER 
@@ -98,7 +126,6 @@ function setup() {
      * An AnimatedSprite inherits all the properties of a PIXI sprite
      * so you can change its position, its anchor, mask it, etc
      */
-    console.log(app.renderer.height)
     player.x = app.renderer.width / 2;;
     player.y = 250;;
     player.anchor.set(0.5);
@@ -108,14 +135,17 @@ function setup() {
     player.play();
     stage.addChild(player);
 
+    var bg6Texture = PIXI.Texture.fromImage("images/background6.png");
+    var bg6 = new PIXI.extras.TilingSprite(bg6Texture, window.innerWidth, window.innerHeight);
+    bg6.tilePosition.x = 0;
+    bg6.tilePosition.y = 0;
+    stage.addChild(bg6);
 
-    // LINK
-    var texture = TextureCache["images/link.png"];
-    var rectangle = new PIXI.Rectangle(0, 96, 32, 32);
-    texture.frame = rectangle;
-    var link = new Sprite(texture);
-    link.x = 32;
-    stage.addChild(link);
+    var richText = new PIXI.Text(nbPoints+ 'm', style);
+    richText.x = window.innerWidth - 20 - richText.width;
+    richText.y = 20;
+    stage.addChild(richText);
+
 
 
     // BAD LINK
@@ -124,25 +154,37 @@ function setup() {
     badLink.x = window.innerWidth + 200;
     stage.addChild(badLink);
 
-
     gameLoop();
 
+    function resize(screen, texture) {
+        screen.height = texture.height;
+        screen.width = texture.width;
+        screen.scale.y = (window.innerHeight / texture.height);
+        screen.scale.x = (window.innerHeight / texture.height);
+    }
+
     function gameLoop() {
-        far.tilePosition.x -= 2;
+        bg6.tilePosition.x -= 3;
+        bg5.tilePosition.x -= 3;
+        bg4.tilePosition.x -= 0.7;
+        bg3.tilePosition.x -= 1.5;
+        bg2.tilePosition.x -= 1;
         badLink.x -= 2;
 
+        resize(bg6, bg5Texture);
+        resize(bg5, bg5Texture);
+        resize(bg4, bg5Texture);
+        resize(bg3, bg5Texture);
+        resize(bg2, bg5Texture);
+        resize(bg1, bg5Texture);
 
-        far.height = farTexture.height;
-        far.width = farTexture.width;
 
-        far.scale.y = (window.innerHeight / farTexture.height);
-        far.scale.x = (window.innerHeight / farTexture.height);
 
         renderer.resize(window.innerWidth, window.innerHeight);
 
 
         badLink.y = window.innerHeight - (window.innerHeight / 6.4);
-        link.y = window.innerHeight - (window.innerHeight / 6.4);
+        link.y = window.innerHeight - (window.innerHeight / 2);
 
 
         if (boxesIntersect(link, badLink)) {
@@ -158,8 +200,7 @@ function setup() {
 
         nbPoints++;
         showPoints = Math.floor(nbPoints / 60);
-        var s = (showPoints > 1) ? 's' : '';
-        richText.text = showPoints + ' mètre' + s;
+        richText.text = showPoints + 'm';
         richText.x = window.innerWidth - 20 - richText.width;
 
         if (!PAUSED) requestAnimationFrame(gameLoop);
@@ -173,13 +214,13 @@ function setup() {
         looseText.y = window.innerHeight / 2 - (looseText.height / 2);
         stage.addChild(looseText);
 
-        PAUSED = true;
+        // PAUSED = true;
 
         setTimeout(function() {
             nbPoints = 0;
             stage.removeChild(looseText);
-            PAUSED = false;
-            gameLoop();
+            // PAUSED = false;
+            // gameLoop();
         }, 1500);
     }
 
@@ -191,57 +232,4 @@ function boxesIntersect(a, b) {
     var ab = a.getBounds();
     var bb = b.getBounds();
     return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
-}
-
-
-renderer.interactive = true;
-
-
-var initialPoint;
-
-var finalPoint;
-
-
-renderer.touchstart = function(interactionData) {
-
-    initialPoint = interactionData.getLocalPosition(this.parent);
-    console.log(initialPoint);
-}
-
-
-
-renderer.touchend = renderer.touchendoutside = function(interactionData) {
-
-    alert('touch end')
-
-    finalPoint = interactionData.getLocalPosition(this.parent);
-
-    var xAbs = Math.abs(initialPoint.x - finalPoint.x);
-
-    var yAbs = Math.abs(initialPoint.y - finalPoint.y);
-
-    if (xAbs > 20 || yAbs > 20) { //check if distance between two points is greater then 20 otherwise discard swap event
-
-        if (xAbs > yAbs) {
-
-            if (finalPoint.x < initialPoint.x)
-
-                alert("swap left");
-
-            else
-
-                alert("swap right");
-
-        } else {
-
-            if (finalPoint.y < initialPoint.y)
-
-                alert("swap up");
-
-            else
-                alert("swap down");
-        }
-
-    }
-
 }
