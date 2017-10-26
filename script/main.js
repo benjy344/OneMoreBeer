@@ -35,7 +35,7 @@ var style = new PIXI.TextStyle({
     wordWrapWidth: 440
 });
 
-var PAUSED = false;
+var PAUSED = true;
 var nbPoints = 0;
 
 
@@ -98,6 +98,18 @@ function setup() {
     bg5.tilePosition.y = 0;
     stage.addChild(bg5);
 
+    var spriteSVGImage = "images/home2.svg";
+    var spriteSVGTexture = PIXI.Texture.fromImage(spriteSVGImage);
+    var spriteSVG = new PIXI.Sprite(spriteSVGTexture);
+
+
+    var spriteSVGImage2 = "images/home1.svg";
+    var spriteSVGTexture2 = PIXI.Texture.fromImage(spriteSVGImage2);
+    var spriteSVG2 = new PIXI.Sprite(spriteSVGTexture2);
+
+
+    stage.addChild(spriteSVG);
+
     // LINK
     var texture = TextureCache["images/link.png"];
     var rectangle = new PIXI.Rectangle(0, 96, 32, 32);
@@ -106,6 +118,9 @@ function setup() {
     link.x = 32;
     link.height = 150;
     stage.addChild(link);
+
+    stage.addChild(spriteSVG2);
+
 
     var bg6Texture = PIXI.Texture.fromImage("images/background6.png");
     var bg6 = new PIXI.extras.TilingSprite(bg6Texture, window.innerWidth, window.innerHeight);
@@ -117,6 +132,10 @@ function setup() {
     richText.x = window.innerWidth - 20 - richText.width;
     richText.y = 20;
     stage.addChild(richText);
+
+
+
+
 
 
 
@@ -151,6 +170,10 @@ function setup() {
         resize(bg1, bg5Texture);
 
 
+        spriteSVG.width = window.innerWidth;
+        spriteSVG.height = window.innerHeight;
+        spriteSVG2.width = window.innerWidth;
+        spriteSVG2.height = window.innerHeight;
 
         renderer.resize(window.innerWidth, window.innerHeight);
 
