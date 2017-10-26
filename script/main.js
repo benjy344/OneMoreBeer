@@ -45,7 +45,13 @@ var style2 = new PIXI.TextStyle({
     wordWrapWidth: 440
 });
 
-var PAUSED = false;
+var style3 = new PIXI.TextStyle({
+    fontFamily: 'Arial',
+    fontSize: 20,
+    fill: ['#ffffff']
+});
+
+var PAUSED = true;
 var nbPoints = 0;
 var best = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
 
@@ -111,6 +117,11 @@ function setup() {
     bg5.tilePosition.y = 0;
     stage.addChild(bg5);
 
+    var home2Texture = PIXI.Texture.fromImage("images/home2.png");
+    var home2 = new PIXI.extras.TilingSprite(home2Texture, window.innerWidth, window.innerHeight);
+    home2.tilePosition.x = 0;
+    home2.tilePosition.y = 0;
+    stage.addChild(home2);
 
     // LINK
     var texture = TextureCache["images/link.png"];
@@ -139,15 +150,12 @@ function setup() {
      * so you can change its position, its anchor, mask it, etc
      */
     player.x = app.renderer.width / 2;
-    player.y = 250;;
+    player.y = 270;
     player.anchor.set(0.5);
     player.animationSpeed = 0.5;
-    player.height = 170;
-    player.width = 170;
-    player.play();
+    player.height = 120;
+    player.width = 250;
     stage.addChild(player);
-
-    // stage.addChild(spriteSVG2);
 
     var bg6Texture = PIXI.Texture.fromImage("images/background6.png");
     var bg6 = new PIXI.extras.TilingSprite(bg6Texture, window.innerWidth, window.innerHeight);
@@ -159,11 +167,31 @@ function setup() {
     textPoints.y = 20;
     stage.addChild(textPoints);
 
-    var textBest = new PIXI.Text('record : ' + best, style2);
+    var textBest = new PIXI.Text('record : ' + best + 'm', style2);
     textBest.y = 65;
     stage.addChild(textBest);
 
+    var home1Texture = PIXI.Texture.fromImage("images/home1.png");
+    var home1 = new PIXI.extras.TilingSprite(home1Texture, window.innerWidth, window.innerHeight);
+    home1.tilePosition.x = 0;
+    home1.tilePosition.y = 0;
+    stage.addChild(home1);
 
+    var layer = new PIXI.Graphics();
+    layer.beginFill(0x000000, 0.4);
+    layer.drawRect(0, 0, window.innerWidth, window.innerHeight);
+    layer.endFill();
+    stage.addChild(layer);
+
+    layer.interactive = true;
+
+    layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function() {
+        launchGame();
+    }
+
+    var textPlay = new PIXI.Text("Tape n'importe où pour rentrer chez toi", style3);
+    textPlay.y = window.innerHeight - 50;
+    stage.addChild(textPlay);
 
     // incendie
     //
@@ -204,13 +232,39 @@ function setup() {
         screen.scale.x = (window.innerHeight / texture.height);
     }
 
+    function launchGame() {
+        PAUSED = false;
+        player.play();
+        layer.visible = false;
+        textPlay.visible = false;
+    }
+
     function gameLoop() {
-        bg6.tilePosition.x -= 3;
-        bg5.tilePosition.x -= 3;
-        bg4.tilePosition.x -= 0.7;
-        bg3.tilePosition.x -= 1.5;
-        bg2.tilePosition.x -= 1;
-        badLink.x -= 2;
+        if (!PAUSED) {
+            home2.x -= 1;
+            home1.x -= 1;
+
+            bg6.tilePosition.x -= 3;
+            bg5.tilePosition.x -= 3;
+            bg4.tilePosition.x -= 0.7;
+            bg3.tilePosition.x -= 1.5;
+            bg2.tilePosition.x -= 1;
+            badLink.x -= 2;
+
+            nbPoints++;
+            var showPoints = Math.floor(nbPoints / 60);
+
+            if (showPoints > best) {
+                best = showPoints;
+                sessionStorage.setItem("best", best);
+                console.log('BEST');
+            }
+
+            textPoints.text = showPoints + 'm';
+
+            textBest.text = 'record : ' + best + 'm';
+        }
+
 
         resize(bg6, bg5Texture);
         resize(bg5, bg5Texture);
@@ -218,18 +272,19 @@ function setup() {
         resize(bg3, bg5Texture);
         resize(bg2, bg5Texture);
         resize(bg1, bg5Texture);
+        resize(home2, home2Texture);
+        resize(home1, home1Texture);
 
 
-        // spriteSVG.width = window.innerWidth;
-        // spriteSVG.height = window.innerHeight;
-        // spriteSVG2.width = window.innerWidth;
-        // spriteSVG2.height = window.innerHeight;
-
-        renderer.resize(window.innerWidth, window.innerHeight);
-
+        textPoints.x = window.innerWidth - 20 - textPoints.width;
+        textBest.x = window.innerWidth - 25 - textBest.width;
+        textPlay.x = (window.innerWidth / 2) - (textPlay.width / 2);
 
         badLink.y = window.innerHeight - (window.innerHeight / 6.4);
         link.y = window.innerHeight - (window.innerHeight / 2);
+
+        renderer.resize(window.innerWidth, window.innerHeight);
+
 
 
         if (boxesIntersect(link, badLink)) {
@@ -242,24 +297,8 @@ function setup() {
             badLink.x = window.innerWidth + 200;
         }
 
-
-        nbPoints++;
-        showPoints = Math.floor(nbPoints / 60);
-
-        if (showPoints > best) {
-            best = showPoints;
-            sessionStorage.setItem("best", best);
-            console.log('BEST');
-        }
-
-        textPoints.text = showPoints + 'm';
-        textPoints.x = window.innerWidth - 20 - textPoints.width;
-
-        textBest.text = 'record : ' + best;
-        textBest.x = window.innerWidth - 25 - textBest.width;
-
-        if (!PAUSED) requestAnimationFrame(gameLoop);
         renderer.render(stage);
+        requestAnimationFrame(gameLoop);
     }
 
     function dead() {
@@ -269,12 +308,9 @@ function setup() {
         looseText.y = window.innerHeight / 2 - (looseText.height / 2);
         stage.addChild(looseText);
 
-        // PAUSED = true;
-
         setTimeout(function() {
             nbPoints = 0;
             stage.removeChild(looseText);
-            // PAUSED = false;
             // gameLoop();
         }, 1500);
     }
