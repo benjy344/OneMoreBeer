@@ -1,3 +1,9 @@
+var PIXI = require('pixi.js');
+var PIXISOUND = require('pixi-sound');
+
+console.log(PIXISOUND)
+
+
 var type = "WebGL"
 if (!PIXI.utils.isWebGLSupported()) {
     type = "canvas"
@@ -85,8 +91,14 @@ function loadProgressHandler(loader, resource) {
 
 function setup() {
 
-    // var sound = PIXI.sound.Sound.from('sounds/game.mp3');
-    // sound.play();
+    // SOUNDS
+    var gameSound  = PIXI.sound.Sound.from('sounds/game.mp3');
+    var PauseSound = PIXI.sound.Sound.from('sounds/ClickOnPause.mp3');
+    var looseSound = PIXI.sound.Sound.from('sounds/loose.mp3');
+    var introSound = PIXI.sound.Sound.from('sounds/intro_pause.mp3');
+
+    gameSound.play();
+    gameSound.loop = true
 
     var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
     var bg1 = new PIXI.extras.TilingSprite(bg1Texture, window.innerWidth, window.innerHeight);
@@ -177,6 +189,12 @@ function setup() {
     home1.tilePosition.x = 0;
     home1.tilePosition.y = 0;
     stage.addChild(home1);
+
+    var buttonPause = PIXI.Texture.fromImage("images/pause.png");
+    var pauseButton = new PIXI.extras.TilingSprite(buttonPause, window.innerWidth, window.innerHeight);
+    pauseButton.tilePosition.x = 0;
+    pauseButton.tilePosition.y = 0;
+    stage.addChild(pauseButton);
 
     var layer = new PIXI.Graphics();
     layer.beginFill(0x000000, 0.4);
