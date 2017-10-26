@@ -102,11 +102,10 @@
 
 
             var farTexture = PIXI.Texture.fromImage("images/background.png");
-            var far = new PIXI.Sprite(PIXI.loader.resources["images/background.png"].texture);
-            far = new PIXI.extras.TilingSprite(farTexture, window.innerWidth, window.innerHeight);
+            var far = new PIXI.extras.TilingSprite(farTexture, window.innerWidth, window.innerHeight);
+            far.texture.height = 100;
             far.tilePosition.x = 0;
             far.tilePosition.y = 0;
-
             stage.addChild(far);
 
             var richText = new PIXI.Text(nbPoints + ' mètre', style);
@@ -142,6 +141,9 @@
                 far.tilePosition.x -= 2;
                 badLink.x -= 5;
 
+                far.scale.y = window.innerHeight / farTexture.height;
+                far.scale.x = window.innerHeight / farTexture.height;
+                
                 renderer.resize(window.innerWidth, window.innerHeight);
                 far.height = window.innerHeight;
                 far.width = window.innerWidth;
@@ -179,16 +181,16 @@
                 looseText.y = window.innerHeight / 2 - (looseText.height / 2);
                 stage.addChild(looseText);
 
-                PAUSED = true;
+                // PAUSED = true;
 
-
-
-                setTimeout(function() {
-                    nbPoints = 0;
-                    stage.removeChild(looseText);
-                    PAUSED = false;
-                    gameLoop();
-                }, 1500);
+                //
+                //
+                // setTimeout(function() {
+                //     nbPoints = 0;
+                //     stage.removeChild(looseText);
+                //     PAUSED = false;
+                //     gameLoop();
+                // }, 1500);
             }
 
         }
