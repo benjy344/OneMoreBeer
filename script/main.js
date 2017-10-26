@@ -5,14 +5,14 @@ if (!PIXI.utils.isWebGLSupported()) {
 
 PIXI.utils.sayHello(type);
 
-
 //Aliases
-var Container = PIXI.Container,
-    autoDetectRenderer = PIXI.autoDetectRenderer,
-    loader = PIXI.loader,
-    resources = PIXI.loader.resources,
-    Sprite = PIXI.Sprite,
-    TextureCache = PIXI.utils.TextureCache;
+var Container           = PIXI.Container,
+    autoDetectRenderer  = PIXI.autoDetectRenderer,
+    loader              = PIXI.loader,
+    resources           = PIXI.loader.resources,
+    Sprite              = PIXI.Sprite,
+    TextureCache        = PIXI.utils.TextureCache,
+    app                 = new PIXI.Application();
 
 
 //Create a Pixi stage and renderer and add the
@@ -50,6 +50,7 @@ renderer.autoResize = true;
 loader
     .add("images/link.png")
     .add("images/background.png")
+    .add("playerWalk.json")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -67,17 +68,45 @@ function loadProgressHandler(loader, resource) {
 
 
 function setup() {
-
+    
     var farTexture = PIXI.Texture.fromImage("images/background.png");
     var far = new PIXI.extras.TilingSprite(farTexture, window.innerWidth, window.innerHeight);
     far.tilePosition.x = 0;
     far.tilePosition.y = 0;
     stage.addChild(far);
 
+
     var richText = new PIXI.Text(nbPoints + ' mètre', style);
     richText.x = window.innerWidth - 20 - richText.width;
     richText.y = 20;
     stage.addChild(richText);
+
+
+    // PLAYER 
+    // create an array of textures from an image path
+    var frames = [];
+
+    for (var i = 0; i < 57; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        frames.push(PIXI.Texture.fromFrame('player' + val + '.png'));
+    }
+    // create an AnimatedSprite (brings back memories from the days of Flash, right ?)
+    var player = new PIXI.extras.AnimatedSprite(frames);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    console.log(app.renderer.height)
+    player.x = app.renderer.width / 2;;
+    player.y = 250;;
+    player.anchor.set(0.5);
+    player.animationSpeed = 0.5;
+    player.height = 170;
+    player.width = 170;
+    player.play();
+    stage.addChild(player);
 
 
     // LINK
@@ -136,7 +165,6 @@ function setup() {
         if (!PAUSED) requestAnimationFrame(gameLoop);
         renderer.render(stage);
     }
-
 
     function dead() {
 
