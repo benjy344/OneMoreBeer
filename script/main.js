@@ -85,7 +85,8 @@ function loadProgressHandler(loader, resource) {
 
 function setup() {
 
-
+    // var sound = PIXI.sound.Sound.from('sounds/game.mp3');
+    // sound.play();
 
     var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
     var bg1 = new PIXI.extras.TilingSprite(bg1Texture, window.innerWidth, window.innerHeight);
@@ -127,17 +128,17 @@ function setup() {
     var texture = TextureCache["images/link.png"];
     var rectangle = new PIXI.Rectangle(0, 96, 32, 32);
     texture.frame = rectangle;
-    var link = new Sprite(texture);
-    link.x = 32;
-    link.height = 150;
-    stage.addChild(link);
+    // var link = new Sprite(texture);
+    // link.x = 32;
+    // link.height = 150;
+    // stage.addChild(link);
 
 
     // PLAYER
     // create an array of textures from an image path
     var frames = [];
 
-    for (var i = 0; i < 57; i++) {
+    for (var i = 0; i < 55; i++) {
         var val = i;
         // magically works since the spritesheet was loaded with the pixi loader
         frames.push(PIXI.Texture.fromFrame('player' + val + '.png'));
@@ -149,7 +150,7 @@ function setup() {
      * An AnimatedSprite inherits all the properties of a PIXI sprite
      * so you can change its position, its anchor, mask it, etc
      */
-    player.x = app.renderer.width / 2;
+    player.x = window.innerWidth / 4;
     player.y = 270;
     player.anchor.set(0.5);
     player.animationSpeed = 0.5;
@@ -249,7 +250,7 @@ function setup() {
             bg4.tilePosition.x -= 0.7;
             bg3.tilePosition.x -= 1.5;
             bg2.tilePosition.x -= 1;
-            badLink.x -= 2;
+            badLink.x -= 1.6;
 
             nbPoints++;
             var showPoints = Math.floor(nbPoints / 60);
@@ -281,13 +282,13 @@ function setup() {
         textPlay.x = (window.innerWidth / 2) - (textPlay.width / 2);
 
         badLink.y = window.innerHeight - (window.innerHeight / 6.4);
-        link.y = window.innerHeight - (window.innerHeight / 2);
+        // link.y = window.innerHeight - (window.innerHeight / 2);
 
         renderer.resize(window.innerWidth, window.innerHeight);
 
 
 
-        if (boxesIntersect(link, badLink)) {
+        if (collision(player, badLink)) {
             badLink.x = window.innerWidth + 200;
             dead();
         }
@@ -302,7 +303,6 @@ function setup() {
     }
 
     function dead() {
-
         var looseText = new PIXI.Text('Perdu ! ', style);
         looseText.x = window.innerWidth / 2 - (looseText.width / 2);
         looseText.y = window.innerHeight / 2 - (looseText.height / 2);
@@ -315,12 +315,16 @@ function setup() {
         }, 1500);
     }
 
+    function pause () {
+         PAUSED = true;
+    }
+
 }
 
 
 
-function boxesIntersect(a, b) {
+function collision(a, b) {
     var ab = a.getBounds();
     var bb = b.getBounds();
-    return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
+    return ((ab.x + ab.width - 110) > bb.x) && (ab.x < (bb.x + bb.width)) && ((ab.y + ab.height) > bb.y && ab.y) < (bb.y + bb.height);
 }
