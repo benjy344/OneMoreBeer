@@ -138,7 +138,7 @@ function setup() {
     function gameLoop() {
         bg6.tilePosition.x -= 3;
         bg5.tilePosition.x -= 3;
-        bg4.tilePosition.x -= 0.5;
+        bg4.tilePosition.x -= 0.7;
         bg3.tilePosition.x -= 1.5;
         bg2.tilePosition.x -= 1;
         badLink.x -= 2;
