@@ -5,14 +5,14 @@ if (!PIXI.utils.isWebGLSupported()) {
 
 PIXI.utils.sayHello(type);
 
-
 //Aliases
-var Container = PIXI.Container,
-    autoDetectRenderer = PIXI.autoDetectRenderer,
-    loader = PIXI.loader,
-    resources = PIXI.loader.resources,
-    Sprite = PIXI.Sprite,
-    TextureCache = PIXI.utils.TextureCache;
+var Container           = PIXI.Container,
+    autoDetectRenderer  = PIXI.autoDetectRenderer,
+    loader              = PIXI.loader,
+    resources           = PIXI.loader.resources,
+    Sprite              = PIXI.Sprite,
+    TextureCache        = PIXI.utils.TextureCache,
+    app                 = new PIXI.Application();
 
 
 //Create a Pixi stage and renderer and add the
@@ -35,9 +35,19 @@ var style = new PIXI.TextStyle({
     wordWrapWidth: 440
 });
 
-var PAUSED = true;
-var nbPoints = 0;
+var style2 = new PIXI.TextStyle({
+    fontFamily: 'Arial',
+    fontSize: 14,
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    fill: ['#ffffff'], // gradient
+    wordWrap: true,
+    wordWrapWidth: 440
+});
 
+var PAUSED = false;
+var nbPoints = 0;
+var best = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
 
 document.body.appendChild(renderer.view);
 
@@ -46,10 +56,11 @@ renderer.view.style.position = "absolute";
 renderer.autoResize = true;
 
 //load an image and run the `setup` function when it's done
-
+// @TODO verif loader
 loader
     .add("images/link.png")
-    .add("images/background5.png")
+    .add("images/background.png")
+    .add("playerWalk.json")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -67,6 +78,8 @@ function loadProgressHandler(loader, resource) {
 
 
 function setup() {
+
+
 
     var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
     var bg1 = new PIXI.extras.TilingSprite(bg1Texture, window.innerWidth, window.innerHeight);
@@ -98,17 +111,6 @@ function setup() {
     bg5.tilePosition.y = 0;
     stage.addChild(bg5);
 
-    var spriteSVGImage = "images/home2.svg";
-    var spriteSVGTexture = PIXI.Texture.fromImage(spriteSVGImage);
-    var spriteSVG = new PIXI.Sprite(spriteSVGTexture);
-
-
-    var spriteSVGImage2 = "images/home1.svg";
-    var spriteSVGTexture2 = PIXI.Texture.fromImage(spriteSVGImage2);
-    var spriteSVG2 = new PIXI.Sprite(spriteSVGTexture2);
-
-
-    stage.addChild(spriteSVG);
 
     // LINK
     var texture = TextureCache["images/link.png"];
@@ -119,8 +121,33 @@ function setup() {
     link.height = 150;
     stage.addChild(link);
 
-    stage.addChild(spriteSVG2);
 
+    // PLAYER
+    // create an array of textures from an image path
+    var frames = [];
+
+    for (var i = 0; i < 57; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        frames.push(PIXI.Texture.fromFrame('player' + val + '.png'));
+    }
+    // create an AnimatedSprite (brings back memories from the days of Flash, right ?)
+    var player = new PIXI.extras.AnimatedSprite(frames);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    player.x = app.renderer.width / 2;
+    player.y = 250;;
+    player.anchor.set(0.5);
+    player.animationSpeed = 0.5;
+    player.height = 170;
+    player.width = 170;
+    player.play();
+    stage.addChild(player);
+
+    // stage.addChild(spriteSVG2);
 
     var bg6Texture = PIXI.Texture.fromImage("images/background6.png");
     var bg6 = new PIXI.extras.TilingSprite(bg6Texture, window.innerWidth, window.innerHeight);
@@ -128,13 +155,38 @@ function setup() {
     bg6.tilePosition.y = 0;
     stage.addChild(bg6);
 
-    var richText = new PIXI.Text(nbPoints+ 'm', style);
-    richText.x = window.innerWidth - 20 - richText.width;
-    richText.y = 20;
-    stage.addChild(richText);
+    var textPoints = new PIXI.Text(nbPoints+ 'm', style);
+    textPoints.x = window.innerWidth - 20 - textPoints.width;
+    textPoints.y = 20;
+    stage.addChild(textPoints);
+
+    var textBest = new PIXI.Text('record : ' + best, style2);
+    textBest.x = window.innerWidth - 25 - textBest.width;
+    textBest.y = 65;
+    stage.addChild(textBest);
 
 
 
+    // incendie
+    //
+    // var incendieImages = ['incendie0.png', 'incendie1.png'];
+    // var framesIncendie = [];
+    // for (var i = 0; i < 1; i++) {
+    //     var val = i;
+    //     // magically works since the spritesheet was loaded with the pixi loader
+    //     framesIncendie.push(PIXI.Texture.fromFrame('incendie' + val + '.png'));
+    // }
+    //
+    // player.x = app.renderer.width / 2;
+    // player.y = 250;;
+    // player.anchor.set(0.5);
+    // player.animationSpeed = 0.5;
+    // player.height = 170;
+    // player.width = 170;
+    // player.play();
+    // stage.addChild(player);
+    //
+    // var incendie = new PIXI.extras.AnimatedSprite(framesIncendie);
 
 
 
@@ -170,10 +222,10 @@ function setup() {
         resize(bg1, bg5Texture);
 
 
-        spriteSVG.width = window.innerWidth;
-        spriteSVG.height = window.innerHeight;
-        spriteSVG2.width = window.innerWidth;
-        spriteSVG2.height = window.innerHeight;
+        // spriteSVG.width = window.innerWidth;
+        // spriteSVG.height = window.innerHeight;
+        // spriteSVG2.width = window.innerWidth;
+        // spriteSVG2.height = window.innerHeight;
 
         renderer.resize(window.innerWidth, window.innerHeight);
 
@@ -195,13 +247,19 @@ function setup() {
 
         nbPoints++;
         showPoints = Math.floor(nbPoints / 60);
-        richText.text = showPoints + 'm';
-        richText.x = window.innerWidth - 20 - richText.width;
+
+        if (showPoints > best) {
+            best = showPoints;
+            sessionStorage.setItem("best", best);
+            console.log('BEST');
+        }
+
+        textPoints.text = showPoints + 'm';
+        textPoints.x = window.innerWidth - 20 - textPoints.width;
 
         if (!PAUSED) requestAnimationFrame(gameLoop);
         renderer.render(stage);
     }
-
 
     function dead() {
 
