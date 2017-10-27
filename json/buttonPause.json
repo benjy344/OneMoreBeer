@@ -1,0 +1,44 @@
+{"frames": {
+
+"pause0.png":
+{
+	"frame": {"x":1,"y":544,"w":540,"h":540},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":540,"h":540},
+	"sourceSize": {"w":540,"h":540}
+},
+"pause1.png":
+{
+	"frame": {"x":1,"y":1,"w":540,"h":541},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":540,"h":541},
+	"sourceSize": {"w":540,"h":541}
+},
+"pause2.png":
+{
+	"frame": {"x":1,"y":1086,"w":540,"h":540},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":540,"h":540},
+	"sourceSize": {"w":540,"h":540}
+},
+"pause3.png":
+{
+	"frame": {"x":1,"y":1628,"w":540,"h":540},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":540,"h":540},
+	"sourceSize": {"w":540,"h":540}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "../images/buttons/buttonPause.png",
+	"format": "RGBA8888",
+	"size": {"w":542,"h":2169},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:cef0b00e8130ff147870f93a478b20ae:e643b26158bed5c803403c54da38f484:afe3e12887c22d124923e1c281000753$"
+}
+}
