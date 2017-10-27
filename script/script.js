@@ -40314,7 +40314,11 @@ var INTRO    = true;
 var MUTE     = false;
 var DEAD     = false;
 var MOUVEINTRO = false;
+var ISANIME = false;
+var TUTOPASSED = (sessionStorage.getItem("tuto")) ? sessionStorage.getItem("tuto") : false;
+
 var introIsPlaying = false;
+var TOTALPOINTS;
 //var ISLOADING = true;
 var nbPoints = 0;
 var best     = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
@@ -40347,6 +40351,10 @@ loader
     .add("images/incendie3.png")
     .add("images/lampadaire.png")
     .add("images/lampadaire2.png")
+    .add("images/pause.png")
+    .add("images/restart.png")
+    .add("images/play.png")
+    .add("images/mute.png")
     .load(setup);
 
 function setup() {
@@ -40393,6 +40401,9 @@ function setup() {
     home2.tilePosition.x = 0;
     home2.tilePosition.y = 15;
     stage.addChild(home2);
+
+    var lampe = new PIXI.Sprite(PIXI.loader.resources["images/lampadaire.png"].texture);
+    stage.addChild(lampe);
 
 
 
@@ -40451,15 +40462,12 @@ function setup() {
     badLinkCopy.height = badLink.height;
     badLinkCopy.visible = false;
 
-    badLink.x = screenWidth + 200;
-    badLinkCopy.x = screenWidth + 200;
-    badLink2.x = screenWidth + 600;
-    badLink3.x = screenWidth + 500;
-    egoutsCopy.x = screenWidth + 540;
+    badLink.x = screenWidth + 600;
+    badLinkCopy.x = screenWidth + 600;
+    badLink2.x = screenWidth + 200;
+    badLink3.x = screenWidth + 400;
+    egoutsCopy.x = screenWidth + 440;
 
-
-    var lampe = new PIXI.Sprite(PIXI.loader.resources["images/lampadaire.png"].texture);
-    stage.addChild(lampe);
 
     // PLAYER
     // create an array of textures from an image path
@@ -40530,6 +40538,8 @@ function setup() {
     textBest.x = 600;
     stage.addChild(textBest);
 
+    var looseText = new PIXI.Text('Perdu ! ', style);
+
     var home1Texture = TextureCache["images/home1.png"];
     var home1 = new PIXI.extras.TilingSprite(home1Texture, screenWidth, screenHeight);
     home1.tilePosition.x = 0;
@@ -40537,42 +40547,10 @@ function setup() {
     stage.addChild(home1);
 
 
-
-    // var text1Content = "Qello world! "
-    // var spaces1 = "$1 "; // put any number of spaces after the
-
-    // var text1 = new PIXI.Text(text1Content.replace(/(.)(?=.)/g, spaces1), {
-    //     fontFamilly: "Questrial",
-    //     fill: "white"
-    //     }); // the higher this number the crispier the text
-    // text1.x = 30;
-    // text1.y = 30;
-    // stage.addChild(text1);
-
-
-    // PauseButton
-
-    var framesButtonPause = [];
-    for (var i = 0; i < 1; i++) {
-        var val = i;
-        // magically works since the spritesheet was loaded with the pixi loader
-        framesButtonPause.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
-    }
-    var buttonPause = new PIXI.extras.AnimatedSprite(framesButtonPause);
-
-    /*
-     * An AnimatedSprite inherits all the properties of a PIXI sprite
-     * so you can change its position, its anchor, mask it, etc
-     */
+    var buttonPause = new PIXI.Sprite(PIXI.loader.resources["images/pause.png"].texture);
     buttonPause.height = 30;
     buttonPause.width = 30;
     buttonPause.interactive = true;
-    buttonPause.animationSpeed = 1;
-    // buttonPause.on('touchstart', (event) => {
-    //     console.log('touchstart')
-    //     buttonPause.gotoAndStop(1);
-    //     pause();
-    // });
     buttonPause.buttonMode = true;
     stage.addChild(buttonPause);
 
@@ -40587,16 +40565,27 @@ function setup() {
 
     layer.interactive = true;
 
-    layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function() {
+    layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function(e) {
         if (INTRO) {
             launchGame();
             INTRO = false;
         } else if (DEAD) {
-            restart();
-        } else {
+            // restart();
+            nbPoints = 0;
+            home2.x = 0;
+            home1.x = 0;
+            stage.removeChild(looseText);
+            PAUSED = false;
+            layer.visible = false;
+            player.play();
+            player.visible = true;
+            playerChute.visible = false;
+            playerChute.gotoAndStop(0);
+            totalText.visible = false;
+            DEAD = false;
+        } else if (!MOUVEINTRO && !ISANIME) {
             pause();
         }
-
     }
 
     var logoSprite = PIXI.Sprite.fromImage("images/logo.png");
@@ -40605,21 +40594,39 @@ function setup() {
     logoSprite.y = 80;
     stage.addChild(logoSprite);
 
+
+    var layerTuto = new PIXI.Graphics();
+    layerTuto.beginFill(0x000000, 0.7);
+    layerTuto.drawRect(0, 0, screenWidth, screenHeight);
+    layerTuto.endFill();
+    stage.addChild(layerTuto);
+
+    layerTuto.interactive = true;
+
+
+    var tuto = PIXI.Sprite.fromImage("images/tuto.png");
+    //var tuto = new PIXI.extras.TilingSprite(logo, screenWidth, screenHeight);
+    tuto.x = 0;
+    tuto.y = 0;
+    stage.addChild(tuto);
+    tuto.height = (parseInt(window.innerHeight));
+    tuto.width = (parseInt(window.innerWidth));
+    tuto.visible = false;
+    layerTuto.visible = false;
+
+    layerTuto.mouseup = layerTuto.touchend = layerTuto.touchendoutside = layerTuto.mouseupoutside = function(e) {
+       layerTuto.visible = false;
+       tuto.visible = false;
+       TUTOPASSED = true;
+       sessionStorage.setItem("tuto", true);
+       pauseTuto();
+    }
+
       // PauseRestart
 
-    var framesButtonRestart = [];
-    for (var i = 0; i < 1; i++) {
-        var val = i;
-        // magically works since the spritesheet was loaded with the pixi loader
-        framesButtonRestart.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
-    }
-    var buttonRestart = new PIXI.extras.AnimatedSprite(framesButtonRestart);
+    var buttonRestart = new PIXI.Sprite(PIXI.loader.resources["images/restart.png"].texture);
 
-    /*
-     * An AnimatedSprite inherits all the properties of a PIXI sprite
-     * so you can change its position, its anchor, mask it, etc
-     */
-    buttonRestart.x = (screenWidth / 2) + 60;
+    buttonRestart.x = (screenWidth / 2) + 40;
     buttonRestart.y = screenHeight / 2;
     buttonRestart.height = 40;
     buttonRestart.width = 40;
@@ -40630,19 +40637,13 @@ function setup() {
     stage.addChild(buttonRestart);
 
 
-    var framesButtonMute = [];
-    for (var i = 0; i < 1; i++) {
-        var val = i;
-        // magically works since the spritesheet was loaded with the pixi loader
-        framesButtonMute.push(PIXI.Texture.fromFrame('mute' + val + '.png'));
-    }
-    var buttonMute = new PIXI.extras.AnimatedSprite(framesButtonMute);
+    var buttonMute = new PIXI.Sprite(PIXI.loader.resources["images/mute.png"].texture);
 
     /*
      * An AnimatedSprite inherits all the properties of a PIXI sprite
      * so you can change its position, its anchor, mask it, etc
      */
-    buttonMute.x = (screenWidth / 2) - 100;
+    buttonMute.x = (screenWidth / 2) - 80;
     buttonMute.y = screenHeight / 2;
     buttonMute.height = 40;
     buttonMute.width = 40;
@@ -40652,36 +40653,40 @@ function setup() {
     buttonMute.buttonMode = true;
     stage.addChild(buttonMute);
 
-    var framesButtonSounds = [];
-    for (var i = 0; i < 1; i++) {
-        var val = i;
-        // magically works since the spritesheet was loaded with the pixi loader
-        framesButtonSounds.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
-    }
-    var buttonSounds = new PIXI.extras.AnimatedSprite(framesButtonSounds);
-
-    /*
-     * An AnimatedSprite inherits all the properties of a PIXI sprite
-     * so you can change its position, its anchor, mask it, etc
-     */
-    buttonSounds.x = (screenWidth / 2) - 20;
-    buttonSounds.y = (screenHeight / 2);
-    buttonSounds.height = 40;
-    buttonSounds.width = 40;
-    buttonSounds.interactive = true;
-    buttonSounds.animationSpeed = 1;
-    buttonSounds.visible = false;
+    // var framesButtonSounds = [];
+    // for (var i = 0; i < 1; i++) {
+    //     var val = i;
+    //     // magically works since the spritesheet was loaded with the pixi loader
+    //     framesButtonSounds.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
+    // }
+    // var buttonSounds = new PIXI.extras.AnimatedSprite(framesButtonSounds);
+    //
+    // /*
+    //  * An AnimatedSprite inherits all the properties of a PIXI sprite
+    //  * so you can change its position, its anchor, mask it, etc
+    //  */
+    // buttonSounds.x = (screenWidth / 2) - 20;
+    // buttonSounds.y = (screenHeight / 2);
+    // buttonSounds.height = 40;
+    // buttonSounds.width = 40;
+    // buttonSounds.interactive = true;
+    // buttonSounds.animationSpeed = 1;
+    // buttonSounds.visible = false;
     // buttonSounds.on('touchstart', (event) => {
     //     console.log('touchstart')
     //     buttonSounds.gotoAndStop(1);
     //     Sounds();
     // });
-    buttonSounds.buttonMode = true;
-    stage.addChild(buttonSounds);
+    // buttonSounds.buttonMode = true;
+    // stage.addChild(buttonSounds);
 
     var textPlay = new PIXI.Text("Tape n'importe où pour rentrer chez toi", style3);
     textPlay.fadeOpacity = 1;
     stage.addChild(textPlay);
+
+    var totalText = new PIXI.Text("score: "+TOTALPOINTS+ 'm !', style);
+        totalText.position.y = 70;
+        totalText.position.x = (window.innerHeight/2) + 20;
 
     // Animate the rotation
     app.ticker.add(function() {
@@ -40695,16 +40700,6 @@ function setup() {
         if (textPlay.alpha <= 0.4) textPlay.fadeOpacity = 0;
         if (textPlay.alpha >= 1) textPlay.fadeOpacity = 1;
     });
-
-
-
-
-    // var layerBlack = new PIXI.Graphics();
-    // layer.beginFill(0x000000, 1);
-    // layer.drawRect(0, 0, window.innerWidth, window.innerHeight);
-    // layer.endFill();
-    // stage.addChild(layerBlack);
-    //layerBlack.visible = false
 
 
     gameLoop();
@@ -40739,17 +40734,25 @@ function setup() {
                 PAUSED = false;
                 player.x = screenWidth / 4;
                 player.y = screenHeight - (screenHeight / 4);
+                ISANIME = true;
             }
         } else {
 
             if (INTRO) {
+                buttonPause.visible = false;
                 if (!introIsPlaying){
                     introIsPlaying = true;
                     introSound.play();
                     introSound.loop = true;
                 }
             } else {
+                buttonPause.visible = true;
                 if (DEAD || PAUSED) {
+                    if (DEAD) {
+                        buttonPause.visible = false;
+                        totalText.visible = true;
+                        stage.addChild(totalText);
+                    }
                     if(!introIsPlaying) {
                         introIsPlaying = true;
                         introSound.play();
@@ -40763,6 +40766,7 @@ function setup() {
                        logoSprite.visible = false;
                        layer.visible = false;
                        layer.alpha = 1;
+                       ISANIME = false;
                     }
 
                     introSound.pause();
@@ -40773,19 +40777,30 @@ function setup() {
             if (!PAUSED) {
                 nbPoints++;
                 var showPoints = Math.floor(nbPoints / 60);
+                TOTALPOINTS = showPoints;
 
+                if (badLink2.x <= window.innerWidth - 40 && !TUTOPASSED) {
+                    layerTuto.visible = true;
+                    tuto.visible = true;
+                    pauseTuto();
+                }
 
                 if (showPoints > best) {
                     best = showPoints;
                     sessionStorage.setItem("best", best);
                 }
-
-
-                if (accelerator < 5) parseInt(accelerator += 1 / 2000);
-                else console.log('fin accelération !');
-
                 textPoints.text = showPoints + 'm';
                 textBest.text = 'record : ' + best + 'm';
+                textBest.style = {
+                            fontFamily: 'Questrial',
+                            fontSize: 14,
+                            fill: ['#ffffff'], // gradient
+                            wordWrap: true,
+                            wordWrapWidth: 440
+                    }
+                totalText.text = 'SCORE : '+showPoints + 'm !';
+                totalText.x = (window.innerWidth/2) - (totalText.width/2);
+                totalText.y = (window.innerHeight/2) - 80;
 
                 home2.x -= 1;
                 home1.x -= 1;
@@ -40857,21 +40872,18 @@ function setup() {
 
         if (collision(player, badLink)) {
             if(!badLink.passifOk) {
-                console.log('dead link');
                  dead();
             }
         }
 
         if (collision(player, badLink2)) {
             if(!badLink2.passifOk) {
-                console.log('dead link2');
                  dead();
             }
         }
 
         if (collision(player, badLink3)) {
             if(!badLink3.passifOk) {
-                console.log('dead link3');
                  dead();
             }
         }
@@ -40916,7 +40928,6 @@ function setup() {
         }
 
         badLink2.mouseup = badLink2.touchend = badLink2.touchendoutside = badLink2.mouseupoutside = function() {
-            console.log('click !');
             badLink2.passifOk = 1;
             badLink2.gotoAndStop(1);
         }
@@ -40933,7 +40944,7 @@ function setup() {
 
             function dead() {
                 DEAD = true;
-                var looseText = new PIXI.Text('Perdu ! ', style);
+                looseText.visible = true;
                 looseText.x = screenWidth / 2 - (looseText.width / 2);
                 looseText.y = screenHeight / 2 - (looseText.height / 2);
                 stage.addChild(looseText);
@@ -40961,7 +40972,6 @@ function setup() {
                 playerChute.loop = false;
 
 
-
                 PAUSED = true;
                 layer.visible = true;
                 player.gotoAndStop(1);
@@ -40975,6 +40985,12 @@ function setup() {
                 //     PAUSED = false;
                 //     layer.visible = false;
                 //     player.play();
+                //     player.visible = true;
+                //     playerChute.visible = false;
+                //     playerChute.gotoAndStop(0);
+                //     totalText.visible = false;
+                //
+                //     DEAD = false;
                 // }, 1500);
             }
 
@@ -41014,7 +41030,7 @@ function setup() {
             layer.visible = true;
             buttonRestart.visible = true;
             buttonMute.visible = true;
-            buttonSounds.visible = true;
+            // buttonSounds.visible = true;
          } else {
 
             if(!MUTE) {
@@ -41026,7 +41042,17 @@ function setup() {
             layer.visible = false;
             buttonRestart.visible = false;
             buttonMute.visible = false;
-            buttonSounds.visible = false;
+            // buttonSounds.visible = false;
+         }
+    }
+    function pauseTuto () {
+
+        PAUSED = !PAUSED;
+
+        if (PAUSED) {
+            player.gotoAndStop(1);
+         } else {
+            player.play();
          }
     }
 
