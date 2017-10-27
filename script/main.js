@@ -5,6 +5,27 @@ var type = "WebGL"
 if (!PIXI.utils.isWebGLSupported()) {
     type = "canvas"
 }
+WebFontConfig = {
+  custom: {
+    families: ["Questrial"],
+  }
+  // active: function() {
+  //   // do something
+  //   init();
+  // }
+};
+
+(function() {
+  var wf = document.createElement('script');
+  wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+    '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+  wf.type = 'text/javascript';
+  wf.async = 'true';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(wf, s);
+})();
+
+
 
 PIXI.utils.sayHello(type);
 
@@ -31,28 +52,23 @@ var stage = new Container(),
     });
 
 var style = new PIXI.TextStyle({
-    fontFamily: 'Arial',
-    fontSize: 36,
-    fontStyle: 'italic',
-    fontWeight: 'bold',
+    fontFamily: 'Questrial',
+    fontSize: 26,
     fill: ['#ffffff'], // gradient
-    strokeThickness: 5,
     wordWrap: true,
     wordWrapWidth: 440
 });
 
 var style2 = new PIXI.TextStyle({
-    fontFamily: 'Arial',
+    fontFamily: 'Questrial',
     fontSize: 14,
-    fontStyle: 'italic',
-    fontWeight: 'bold',
     fill: ['#ffffff'], // gradient
     wordWrap: true,
     wordWrapWidth: 440
 });
 
 var style3 = new PIXI.TextStyle({
-    fontFamily: 'Arial',
+    fontFamily: 'Questrial',
     fontSize: 20,
     fill: ['#ffffff']
 });
@@ -60,6 +76,7 @@ var style3 = new PIXI.TextStyle({
 var PAUSED   = true;
 var INTRO    = true;
 var MUTE     = false;
+//var ISLOADING = true;
 var nbPoints = 0;
 var best     = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
 var accelerator = 1;
@@ -174,8 +191,8 @@ function setup() {
     stage.addChild(textPoints);
 
     var textBest = new PIXI.Text('record : ' + best + 'm', style2);
-    textBest.y = 65;
-    textBest.x = 635;
+    textBest.y = 50;
+    textBest.x = 600;
     stage.addChild(textBest);
 
     var home1Texture = PIXI.Texture.fromImage("images/home1.png");
@@ -183,6 +200,17 @@ function setup() {
     home1.tilePosition.x = 0;
     home1.tilePosition.y = 0;
     stage.addChild(home1);
+
+    // var text1Content = "Qello world! "
+    // var spaces1 = "$1 "; // put any number of spaces after the
+
+    // var text1 = new PIXI.Text(text1Content.replace(/(.)(?=.)/g, spaces1), {
+    //     fontFamilly: "Questrial",
+    //     fill: "white"
+    //     }); // the higher this number the crispier the text
+    // text1.x = 30;
+    // text1.y = 30;
+    // stage.addChild(text1);
 
 
     // PauseButton
@@ -199,8 +227,8 @@ function setup() {
      * An AnimatedSprite inherits all the properties of a PIXI sprite
      * so you can change its position, its anchor, mask it, etc
      */
-    buttonPause.height = 40;
-    buttonPause.width = 40;
+    buttonPause.height = 30;
+    buttonPause.width = 30;
     buttonPause.interactive = true;
     buttonPause.animationSpeed = 1;
     // buttonPause.on('touchstart', (event) => {
@@ -326,7 +354,7 @@ function setup() {
     stage.addChild(badLink3);
 
 
-
+    // BAD LINK 1
     // create an array of textures from an image path
     var framesFire = [];
 
@@ -343,6 +371,19 @@ function setup() {
 
     var badLink = fire;
     badLink.interactive = true;
+
+    badLink.x = screenWidth + 200;
+    badLink2.x = screenWidth + 600;
+    badLink3.x = screenWidth + 500;
+
+
+    // var layerBlack = new PIXI.Graphics();
+    // layer.beginFill(0x000000, 1);
+    // layer.drawRect(0, 0, window.innerWidth, window.innerHeight);
+    // layer.endFill();
+    // stage.addChild(layerBlack);
+    //layerBlack.visible = false
+
 
     gameLoop();
 
@@ -362,7 +403,8 @@ function setup() {
     }
 
     function gameLoop() {
-
+        //layerBlack.visible = false
+        //ISLOADING? layerBlack.visible = true : layerBlack.visible = false;
         screenWidth = parseInt(window.innerWidth);
         screenHeight = parseInt(window.innerHeight);
 
@@ -375,12 +417,11 @@ function setup() {
                 sessionStorage.setItem("best", best);
             }
 
-            if (accelerator < 5) accelerator += 1 / 2000;
+            if (accelerator < 5) parseInt(accelerator += 1 / 2000);
             else console.log('fin accelération !');
 
             textPoints.text = showPoints + 'm';
             textBest.text = 'record : ' + best + 'm';
-
 
             home2.x -= 1;
             home1.x -= 1;
@@ -422,10 +463,6 @@ function setup() {
         textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
         textPlay.y = screenHeight - (screenHeight / 8);
 
-        badLink2.x = screenWidth + 600;
-        fire.x = screenWidth + 200;
-        badLink3.x = screenWidth + 500;
-        
         badLink.y = screenHeight - (screenHeight / 5);
         badLink2.y = screenHeight - (screenHeight / 6.4);
         badLink3.y = screenHeight - (screenHeight / 6.4);
@@ -482,12 +519,16 @@ function setup() {
             getPosition(badLink3);
 
 
+
             PAUSED = true;
             layer.visible = true;
             player.gotoAndStop(1);
+            accelerator = 1;
 
             setTimeout(function() {
                 nbPoints = 0;
+                home2.x = 0;
+                home1.x = 0;
                 stage.removeChild(looseText);
                 PAUSED = false;
                 layer.visible = false;
@@ -509,6 +550,9 @@ function setup() {
     }
     buttonMute.mouseup = buttonMute.touchend = buttonMute.touchendoutside = buttonMute.mouseupoutside = function() {
         toggleMute();
+    }
+    buttonRestart.mouseup = buttonRestart.touchend = buttonRestart.touchendoutside = buttonRestart.mouseupoutside = function() {
+        restart();
     }
 
     function pause () {
@@ -549,6 +593,19 @@ function setup() {
         } else {
             PIXI.sound.unmuteAll();
         }
+    }
+
+    function toggleSounds () {
+        MUTE = !MUTE;
+        if (MUTE){
+            PIXI.sound.muteAll();
+        } else {
+            PIXI.sound.unmuteAll();
+        }
+    }
+
+    function restart () {
+        location.reload();
     }
 
 }
