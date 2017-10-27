@@ -442,16 +442,16 @@ function setup() {
     }
 
     function pause () {
-         PAUSED = !PAUSED;
+        
+        PAUSED = !PAUSED;
 
-         if (PAUSED) {
+        if (PAUSED) {
 
             if(!MUTE) {
                 gameSound.pause();
                 PauseSound.play();
                 introSound.play();
             }            
-
             introSound.loop = true;
             player.gotoAndStop(1);
             layer.visible = true;
@@ -463,9 +463,8 @@ function setup() {
             if(!MUTE) {
                 gameSound.play();
                 introSound.pause();
-                player.play();
             }
-
+            player.play();
             layer.visible = false;
             buttonRestart.visible = false;
             buttonMute.visible = false;
@@ -475,12 +474,11 @@ function setup() {
 
     function toggleMute () {
         MUTE = !MUTE;
-        PIXI.sound.toggleMuteAll = MUTE;
-        // if (MUTE){
-        //     PIXI.sound.muteAll();            
-        // } else {
-        //     PIXI.sound.volumeAll();
-        // }
+        if (MUTE){
+            PIXI.sound.muteAll();            
+        } else {
+            PIXI.sound.unmuteAll();
+        }
     }
 
 }
