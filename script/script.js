@@ -42215,6 +42215,7 @@ loader
     .add("playerWalk.json")
     .add("json/buttonPause.json")
     .add("json/mute.json")
+    .add("json/chute.json")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -42311,6 +42312,31 @@ function setup() {
     player.height = 120;
     player.width = 250;
     stage.addChild(player);
+
+    // PLAYER_chute
+    // create an array of textures from an image path
+    var framesChute = [];
+
+    for (var i = 0; i < 26; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesChute.push(PIXI.Texture.fromFrame('chute' + val + '.png'));
+    }
+    // create an AnimatedSprite (brings back memories from the days of Flash, right ?)
+    var playerChute = new PIXI.extras.AnimatedSprite(framesChute);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    playerChute.x = window.innerWidth / 4;
+    playerChute.y = 270;
+    playerChute.anchor.set(0.5);
+    playerChute.animationSpeed = 0.5;
+    playerChute.height = 120;
+    playerChute.width = 250;
+    stage.addChild(playerChute);
+    playerChute.visible = false;
 
     var bg6Texture = PIXI.Texture.fromImage("images/background6.png");
     var bg6 = new PIXI.extras.TilingSprite(bg6Texture, window.innerWidth, window.innerHeight);
@@ -42585,6 +42611,12 @@ function setup() {
         looseText.x = window.innerWidth / 2 - (looseText.width / 2);
         looseText.y = window.innerHeight / 2 - (looseText.height / 2);
         stage.addChild(looseText);
+
+        playerChute.x = player.x;
+        playerChute.y = player.y;
+
+        player.visible = false;
+        playerChute.visible = true;
 
         setTimeout(function() {
             nbPoints = 0;
