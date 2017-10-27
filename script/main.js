@@ -107,21 +107,7 @@ loader
     .add("images/incendie3.png")
     .add("images/lampadaire.png")
     .add("images/lampadaire2.png")
-    .on("progress", loadProgressHandler)
     .load(setup);
-
-function loadProgressHandler(loader, resource) {
-    //Display the file `url` currently being loaded
-    console.log("loading: " + resource.url);
-
-    //Display the percentage of files currently loaded
-    console.log("progress: " + loader.progress + "%");
-
-    //If you gave your files names as the first argument
-    //of the `add` method, you can access them like this
-    console.log("loading: " + resource.name);
-}
-
 
 function setup() {
 
@@ -234,7 +220,6 @@ function setup() {
 
     var lampe = new PIXI.Sprite(PIXI.loader.resources["images/lampadaire.png"].texture);
     stage.addChild(lampe);
-
 
     // PLAYER
     // create an array of textures from an image path
@@ -549,9 +534,6 @@ function setup() {
                 nbPoints++;
                 var showPoints = Math.floor(nbPoints / 60);
 
-
-                if (accelerator < 5) parseInt(accelerator += 1 / 1000);
-                else console.log('fin accelération !');
 
                 if (showPoints > best) {
                     best = showPoints;
