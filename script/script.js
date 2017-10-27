@@ -42253,7 +42253,7 @@ function setup() {
     bg2.tilePosition.x = 0;
     bg2.tilePosition.y = 0;
     stage.addChild(bg2);
-    
+
     var bg3Texture = PIXI.Texture.fromImage("images/background3.png");
     var bg3 = new PIXI.extras.TilingSprite(bg3Texture, window.innerWidth, window.innerHeight);
     bg3.tilePosition.x = 0;
@@ -42347,7 +42347,7 @@ function setup() {
 
 
     // PauseButton
-    
+
     var framesButtonPause = [];
     for (var i = 0; i < 1; i++) {
         var val = i;
@@ -42374,7 +42374,7 @@ function setup() {
     buttonPause.buttonMode = true;
     stage.addChild(buttonPause);
 
-  
+
 
 
     var layer = new PIXI.Graphics();
@@ -42386,17 +42386,17 @@ function setup() {
     layer.interactive = true;
 
     layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function() {
-        if (INTRO) { 
+        if (INTRO) {
             launchGame();
             INTRO = false;
         } else {
             pause();
         }
-        
+
     }
 
       // PauseRestart
-    
+
     var framesButtonRestart = [];
     for (var i = 0; i < 1; i++) {
         var val = i;
@@ -42505,6 +42505,8 @@ function setup() {
         layer.visible = false;
         textPlay.visible = false;
         gameSound.play();
+        console.log(textPlay);
+        console.log(textPlay.visible);
     }
 
     function gameLoop() {
@@ -42571,7 +42573,7 @@ function setup() {
         }
 
 
-       
+
 
 
         renderer.render(stage);
@@ -42604,7 +42606,7 @@ function setup() {
     }
 
     function pause () {
-        
+
         PAUSED = !PAUSED;
 
         if (PAUSED) {
@@ -42613,7 +42615,7 @@ function setup() {
                 gameSound.pause();
                 PauseSound.play();
                 introSound.play();
-            }            
+            }
             introSound.loop = true;
             player.gotoAndStop(1);
             layer.visible = true;
@@ -42637,7 +42639,7 @@ function setup() {
     function toggleMute () {
         MUTE = !MUTE;
         if (MUTE){
-            PIXI.sound.muteAll();            
+            PIXI.sound.muteAll();
         } else {
             PIXI.sound.unmuteAll();
         }
