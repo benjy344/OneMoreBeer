@@ -42,7 +42,7 @@ var Container           = PIXI.Container,
 //renderer.view to the DOM
 var stage = new Container(),
     renderer = PIXI.autoDetectRenderer(screenWidth, screenHeight, {
-        antialias: true,
+        antialias: false,
         transparent: false,
         resolution: 1
     });
@@ -93,11 +93,11 @@ loader
     .add("images/background2.png")
     .add("images/background3.png")
     .add("images/background4.png")
-    .add("images/background5.png")
-    .add("images/background6.png")
+    .add("images/sol.png")
+    // .add("images/background6.png")
     .add("images/home1.png")
     .add("images/home2.png")
-    .add("playerWalk.json")
+    .add("json/playerWalk.json")
     .add("json/buttonPause.json")
     .add('json/fire.json')
     .add('json/cone.json')
@@ -105,6 +105,8 @@ loader
     .add("json/mute.json")
     .add("json/chute.json")
     .add("images/incendie3.png")
+    .add("images/lampadaire.png")
+    .add("images/lampadaire2.png")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -154,7 +156,7 @@ function setup() {
     bg4.tilePosition.y = 0;
     stage.addChild(bg4);
 
-    var bg5Texture = TextureCache["images/background5.png"];
+    var bg5Texture = TextureCache["images/sol.png"];
     var bg5 = new PIXI.extras.TilingSprite(bg5Texture, screenWidth, screenHeight);
     bg5.tilePosition.x = 0;
     bg5.tilePosition.y = 0;
@@ -191,6 +193,15 @@ function setup() {
     stage.addChild(badLink3);
     badLink3.interactive = true;
 
+    // BAD LINK 3
+    var egoutsCopy = new PIXI.extras.AnimatedSprite(framesEgout);
+    egoutsCopy.anchor.set(0.5);
+    egoutsCopy.height = 50;
+    egoutsCopy.width = 50;
+    stage.addChild(egoutsCopy);
+    egoutsCopy.interactive = true;
+    egoutsCopy.gotoAndStop(1);
+
 
     // BAD LINK 1
     // create an array of textures from an image path
@@ -218,6 +229,12 @@ function setup() {
     badLinkCopy.x = screenWidth + 200;
     badLink2.x = screenWidth + 600;
     badLink3.x = screenWidth + 500;
+    egoutsCopy.x = screenWidth + 540;
+
+
+    var lampe = new PIXI.Sprite(PIXI.loader.resources["images/lampadaire.png"].texture);
+    stage.addChild(lampe);
+
 
     // PLAYER
     // create an array of textures from an image path
@@ -265,11 +282,19 @@ function setup() {
     playerChute.visible = false;
 
 
-    var bg6Texture = TextureCache["images/background6.png"];
-    var bg6 = new PIXI.extras.TilingSprite(bg6Texture, screenWidth, screenHeight);
-    bg6.tilePosition.x = 0;
-    bg6.tilePosition.y = 0;
-    stage.addChild(bg6);
+    var lampe2 = new PIXI.Sprite(PIXI.loader.resources["images/lampadaire2.png"].texture);
+    lampe2.height = 120;
+    lampe2.x = screenWidth;
+    lampe2.y = screenHeight - (screenHeight / 4) ;
+    stage.addChild(lampe2);
+
+    lampe.width = 300;
+    lampe2.width = 300;
+    lampe.height = 300;
+    lampe2.height = 300;
+
+    lampe.x = (screenWidth / 2);
+    lampe2.x = (screenWidth / 2);
 
     var textPoints = new PIXI.Text(nbPoints+ 'm', style);
     textPoints.position.y = 20;
@@ -547,8 +572,21 @@ function setup() {
                 badLinkCopy.x -= 1.6 * accelerator;
                 badLink2.x -= 1.6 * accelerator;
                 badLink3.x -= 1.6 * accelerator;
+                if(!badLink3.passifOk) egoutsCopy.x -= (1.6 * accelerator);
+                else {
+                    if(egoutsCopy.x > badLink3.x) egoutsCopy.x -= 1.6 * accelerator * 1.5;
+                    else {
+                        egoutsCopy.visible = false;
+                        badLink3.gotoAndStop(1);
+                    }
+                }
 
-                bg6.tilePosition.x -= 3 * accelerator;
+                lampe.x -= 1.6 * accelerator;
+                lampe2.x -= 1.6 * accelerator;
+
+                if (lampe.x + lampe.width <= 0) lampe.x = screenWidth;
+                if (lampe2.x + lampe2.width <= 0) lampe2.x = screenWidth;
+
                 bg5.tilePosition.x -= 3 * accelerator;
                 bg4.tilePosition.x -= 0.7 * accelerator;
                 bg3.tilePosition.x -= 1.5 * accelerator;
@@ -558,7 +596,6 @@ function setup() {
             }
 
 
-            resize(bg6, bg6Texture);
             resize(bg5, bg5Texture);
             resize(bg4, bg4Texture);
             resize(bg3, bg3Texture);
@@ -571,7 +608,8 @@ function setup() {
             layer.height = screenHeight;
 
 
-
+            lampe.y = (screenHeight / 5.6) ;
+            lampe2.y = (screenHeight / 5.6) ;
 
 
             textPoints.x = 20;
@@ -583,6 +621,7 @@ function setup() {
             badLinkCopy.y = screenHeight - (screenHeight / 5);
             badLink2.y = screenHeight - (screenHeight / 6.4);
             badLink3.y = screenHeight - (screenHeight / 10);
+            egoutsCopy.y = screenHeight - (screenHeight / 10);
 
             buttonPause.x = screenWidth - 60;
             buttonPause.y = 25;
@@ -630,6 +669,7 @@ function setup() {
         if (badLink3.x <= 0) {
             badLink3.passifOk = 0;
             badLink3.gotoAndStop(0);
+            egoutsCopy.visible = true;
             getPosition(badLink3);
         }
 
@@ -656,9 +696,13 @@ function setup() {
         }
 
         badLink3.mouseup = badLink3.touchend = badLink3.touchendoutside = badLink3.mouseupoutside = function() {
+            console.log('click bad3 !');
+            badLink3.passifOk = 1;
+        }
+
+        egoutsCopy.mouseup = egoutsCopy.touchend = egoutsCopy.touchendoutside = egoutsCopy.mouseupoutside = function() {
             console.log('click !');
             badLink3.passifOk = 1;
-            badLink3.gotoAndStop(1);
         }
 
             function dead() {
@@ -724,11 +768,6 @@ function setup() {
     }
     buttonRestart.mouseup = buttonRestart.touchend = buttonRestart.touchendoutside = buttonRestart.mouseupoutside = function() {
         restart();
-    }
-
-    stage.interactive = true;
-    stage.mouseup = stage.touchend = stage.touchendoutside = stage.mouseupoutside = function(evt) {
-        console.log(evt);
     }
 
     function pause () {

@@ -443,7 +443,7 @@
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker",
 	"version": "1.0",
-	"image": "images/player/player.png",
+	"image": "../images/player/player.png",
 	"format": "RGBA8888",
 	"size": {"w":1907,"h":1315},
 	"scale": "1",
