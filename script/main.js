@@ -5,6 +5,55 @@ var type = "WebGL"
 if (!PIXI.utils.isWebGLSupported()) {
     type = "canvas"
 }
+/**
+* @function createCookie
+* @description create a new cookie
+* @param {string} name - name of the cookie
+* @param {string} tabvalue - value of the cookie
+* @param {number} duration - duration of the cookie (in day)
+**/
+function createCookie(name, tabvalue, duration) {
+    // Le nombre de duration est spécifié
+    value = decodeURIComponent( $.param( tabvalue ) );
+    if (duration) {
+        var date = new Date();
+        // Converti le nombre de jour en millisecondes
+        date.setTime(date.getTime()+(duration*24*60*60*1000));
+        var expire = "; expire="+date.toGMTString();
+    }
+    // Aucune valeur de duration spécifiée
+    else var expire = "";
+    document.cookie = name+"="+value+expire+"; path=/";
+}
+
+/**
+* @function readCookie
+* @description read the value of a cookie
+* @param {string} name - name of the cookie
+* @return the cookie's value
+**/
+function readCookie(name) {
+    // Ajoute le signe égale virgule au name
+    // pour la recherche
+    var name2 = name + "=";
+    // Array contenant tous les cookies
+    var arrCookies = document.cookie.split(';');
+    console.log(document.cookie);
+    //Cherche l'array pour le cookie en question
+    for(var i=0;i < arrCookies.length;i++) {
+        var a = arrCookies[i];
+        // Si c'est un espace, enlever
+        while (a.charAt(0)==' ') {
+            a = a.substring(1,a.length);
+        }
+        if (a.indexOf(name2) == 0) {
+            return $.parseParams("?"+a.substring(name2.length,a.length));
+        }
+    }
+    if (document.cookie) return document.cookie;
+    // Aucun cookie trouvé
+    return null;
+}
 WebFontConfig = {
   custom: {
     families: ["Questrial"],
@@ -74,7 +123,10 @@ var INTRO    = true;
 var MUTE     = false;
 var DEAD     = false;
 var MOUVEINTRO = false;
+var ISANIME = false;
+var TUTOPASSED = false;
 var introIsPlaying = false;
+var TOTALPOINTS;
 //var ISLOADING = true;
 var nbPoints = 0;
 var best     = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
@@ -337,12 +389,14 @@ function setup() {
 
     layer.interactive = true;
 
-    layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function() {
+    layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function(e) {
         if (INTRO) {
             launchGame();
             INTRO = false;
         } else if (DEAD) {
             restart();
+        } else if (MOUVEINTRO || ISANIME) {
+            e.preventDefault();
         } else {
             pause();
         }
@@ -354,6 +408,34 @@ function setup() {
     logoSprite.x = (parseInt(window.innerWidth)/2) - 125;
     logoSprite.y = 80;
     stage.addChild(logoSprite);
+
+
+    var layerTuto = new PIXI.Graphics();
+    layerTuto.beginFill(0x000000, 0.7);
+    layerTuto.drawRect(0, 0, screenWidth, screenHeight);
+    layerTuto.endFill();
+    stage.addChild(layerTuto);
+
+    layerTuto.interactive = true;
+
+
+    var tuto = PIXI.Sprite.fromImage("images/tuto.png");
+    //var tuto = new PIXI.extras.TilingSprite(logo, screenWidth, screenHeight);
+    tuto.x = 0;
+    tuto.y = 0;
+    stage.addChild(tuto);
+    tuto.height = (parseInt(window.innerHeight));
+    tuto.width = (parseInt(window.innerWidth));
+    tuto.visible = false;
+    layerTuto.visible = false;
+
+    layerTuto.mouseup = layerTuto.touchend = layerTuto.touchendoutside = layerTuto.mouseupoutside = function(e) {
+       layerTuto.visible = false;
+       tuto.visible = false;
+       TUTOPASSED = true;
+       createCookie('TUTOPASSED', TUTOPASSED, 200)
+       pauseTuto();
+    }
 
       // PauseRestart
 
@@ -433,6 +515,10 @@ function setup() {
     textPlay.fadeOpacity = 1;
     stage.addChild(textPlay);
 
+    var totalText = new PIXI.Text("score: "+TOTALPOINTS+ 'm !', style);
+        totalText.position.y = 70;
+        totalText.position.x = (window.innerHeight/2) + 20;
+
     // Animate the rotation
     app.ticker.add(function() {
         if(textPlay.fadeOpacity) {
@@ -489,17 +575,25 @@ function setup() {
                 PAUSED = false;
                 player.x = screenWidth / 4;
                 player.y = screenHeight - (screenHeight / 4);
+                ISANIME = true;
             }
         } else {
 
             if (INTRO) {
+                buttonPause.visible = false;
                 if (!introIsPlaying){
                     introIsPlaying = true;
                     introSound.play();
                     introSound.loop = true;
                 }
             } else {
+                buttonPause.visible = true;
                 if (DEAD || PAUSED) {
+                    if (DEAD) {
+                        buttonPause.visible = false;
+                        totalText.visible = true;
+                        stage.addChild(totalText);
+                    }
                     if(!introIsPlaying) {
                         introIsPlaying = true;
                         introSound.play();
@@ -513,6 +607,7 @@ function setup() {
                        logoSprite.visible = false;
                        layer.visible = false;
                        layer.alpha = 1;
+                       ISANIME = false;
                     }
 
                     introSound.pause();
@@ -523,7 +618,13 @@ function setup() {
             if (!PAUSED) {
                 nbPoints++;
                 var showPoints = Math.floor(nbPoints / 60);
+                TOTALPOINTS = showPoints;
 
+                if (badLink2.x <= window.innerWidth - 40 && !TUTOPASSED) {
+                    layerTuto.visible = true;
+                    tuto.visible = true;
+                    pauseTuto();
+                }
 
                 if (accelerator < 5) parseInt(accelerator += 1 / 1000);
                 else console.log('fin accelération !');
@@ -532,13 +633,19 @@ function setup() {
                     best = showPoints;
                     sessionStorage.setItem("best", best);
                 }
-
-
-                if (accelerator < 5) parseInt(accelerator += 1 / 2000);
-                else console.log('fin accelération !');
-
                 textPoints.text = showPoints + 'm';
                 textBest.text = 'record : ' + best + 'm';
+                textBest.style = {
+                            fontFamily: 'Questrial',
+                            fontSize: 14,
+                            fill: ['#ffffff'], // gradient
+                            wordWrap: true,
+                            wordWrapWidth: 440
+                    }
+                totalText.text = 'SCORE : '+showPoints + 'm !';
+                totalText.x = (window.innerWidth/2) - (totalText.width/2);
+                totalText.y = (window.innerHeight/2) - 80;
+                totalText.visible = true;
 
                 home2.x -= 1;
                 home1.x -= 1;
@@ -596,21 +703,18 @@ function setup() {
 
         if (collision(player, badLink)) {
             if(!badLink.passifOk) {
-                console.log('dead link');
                  dead();
             }
         }
 
         if (collision(player, badLink2)) {
             if(!badLink2.passifOk) {
-                console.log('dead link2');
                  dead();
             }
         }
 
         if (collision(player, badLink3)) {
             if(!badLink3.passifOk) {
-                console.log('dead link3');
                  dead();
             }
         }
@@ -641,7 +745,7 @@ function setup() {
                 badLinkCopy.x = mvt;
             }
 
-            }
+        }
 
         badLink.mouseup = badLink.touchend = badLink.touchendoutside = badLink.mouseupoutside = function() {
             badLink.passifOk = 1;
@@ -650,13 +754,11 @@ function setup() {
         }
 
         badLink2.mouseup = badLink2.touchend = badLink2.touchendoutside = badLink2.mouseupoutside = function() {
-            console.log('click !');
             badLink2.passifOk = 1;
             badLink2.gotoAndStop(1);
         }
 
         badLink3.mouseup = badLink3.touchend = badLink3.touchendoutside = badLink3.mouseupoutside = function() {
-            console.log('click !');
             badLink3.passifOk = 1;
             badLink3.gotoAndStop(1);
         }
@@ -762,6 +864,17 @@ function setup() {
             buttonRestart.visible = false;
             buttonMute.visible = false;
             buttonSounds.visible = false;
+         }
+    }
+    function pauseTuto () {
+
+        PAUSED = !PAUSED;
+
+        if (PAUSED) {            
+            player.gotoAndStop(1);           
+         } else {
+            alert("endPause "+PAUSED)
+            player.play();            
          }
     }
 
