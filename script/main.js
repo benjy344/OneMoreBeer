@@ -91,11 +91,21 @@ renderer.autoResize = true;
 // @TODO verif loader
 loader
     .add("images/link.png")
-    .add("images/background.png")
+    .add("images/background1.png")
+    .add("images/background2.png")
+    .add("images/background3.png")
+    .add("images/background4.png")
+    .add("images/background5.png")
+    .add("images/background6.png")
+    .add("images/home1.png")
+    .add("images/home2.png")
     .add("playerWalk.json")
     .add("json/buttonPause.json")
     .add('json/fire.json')
+    .add('json/cone.json')
+    .add('json/egout.json')
     .add("json/mute.json")
+    .add("images/incendie3.png")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -121,41 +131,95 @@ function setup() {
     var introSound = PIXI.sound.Sound.from('sounds/intro_pause.mp3');
     gameSound.loop = true
 
-    var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
+    var bg1Texture = TextureCache["images/background1.png"];
     var bg1 = new PIXI.extras.TilingSprite(bg1Texture, screenWidth, screenHeight);
     bg1.tilePosition.x = 0;
     bg1.tilePosition.y = 0;
     stage.addChild(bg1);
 
-    var bg2Texture = PIXI.Texture.fromImage("images/background2.png");
+    var bg2Texture = TextureCache["images/background2.png"];
     var bg2 = new PIXI.extras.TilingSprite(bg2Texture, screenWidth, screenHeight);
     bg2.tilePosition.x = 0;
     bg2.tilePosition.y = 0;
     stage.addChild(bg2);
 
-    var bg3Texture = PIXI.Texture.fromImage("images/background3.png");
+    var bg3Texture = TextureCache["images/background3.png"];
     var bg3 = new PIXI.extras.TilingSprite(bg3Texture, screenWidth, screenHeight);
     bg3.tilePosition.x = 0;
     bg3.tilePosition.y = 0;
     stage.addChild(bg3);
 
-    var bg4Texture = PIXI.Texture.fromImage("images/background4.png");
+    var bg4Texture = TextureCache["images/background4.png"];
     var bg4 = new PIXI.extras.TilingSprite(bg4Texture, screenWidth, screenHeight);
     bg4.tilePosition.x = 0;
     bg4.tilePosition.y = 0;
     stage.addChild(bg4);
 
-    var bg5Texture = PIXI.Texture.fromImage("images/background5.png");
+    var bg5Texture = TextureCache["images/background5.png"];
     var bg5 = new PIXI.extras.TilingSprite(bg5Texture, screenWidth, screenHeight);
     bg5.tilePosition.x = 0;
     bg5.tilePosition.y = 0;
     stage.addChild(bg5);
 
-    var home2Texture = PIXI.Texture.fromImage("images/home2.png");
+    var home2Texture = TextureCache["images/home2.png"];
     var home2 = new PIXI.extras.TilingSprite(home2Texture, screenWidth, screenHeight);
     home2.tilePosition.x = 0;
     home2.tilePosition.y = 0;
     stage.addChild(home2);
+
+
+
+    // BAD LINK 2
+    var framesCone = [];
+    framesCone.push(PIXI.Texture.fromFrame('cone_1.png'));
+    framesCone.push(PIXI.Texture.fromFrame('cone_2.png'));
+    var badLink2 = new PIXI.extras.AnimatedSprite(framesCone);
+    badLink2.anchor.set(0.5);
+    badLink2.height = 50;
+    badLink2.width = 50;
+    stage.addChild(badLink2);
+    badLink2.interactive = true;
+
+
+    // BAD LINK 3
+    var framesEgout = [];
+    framesEgout.push(PIXI.Texture.fromFrame('egout1.png'));
+    framesEgout.push(PIXI.Texture.fromFrame('egout2.png'));
+    var badLink3 = new PIXI.extras.AnimatedSprite(framesEgout);
+    badLink3.anchor.set(0.5);
+    badLink3.height = 50;
+    badLink3.width = 50;
+    stage.addChild(badLink3);
+    badLink3.interactive = true;
+
+
+    // BAD LINK 1
+    // create an array of textures from an image path
+    var framesFire = [];
+    framesFire.push(PIXI.Texture.fromFrame('fire1.png'));
+    framesFire.push(PIXI.Texture.fromFrame('fire2.png'));
+
+    var framesFireEnd = TextureCache["images/incendie3.png"];
+    var badLinkCopy = new Sprite(framesFireEnd);
+    // badLinkCopy.visible = false;
+
+    var badLink = new PIXI.extras.AnimatedSprite(framesFire);
+    badLink.anchor.set(0.5);
+    badLink.animationSpeed = 0.1;
+    badLink.play();
+    stage.addChild(badLink);
+    stage.addChild(badLinkCopy);
+    badLink.interactive = true;
+
+    badLinkCopy.anchor.set(0.5);
+    badLinkCopy.width = badLink.width;
+    badLinkCopy.height = badLink.height;
+
+
+    badLink.x = screenWidth + 200;
+    badLinkCopy.x = screenWidth + 200;
+    badLink2.x = screenWidth + 600;
+    badLink3.x = screenWidth + 500;
 
     // PLAYER
     // create an array of textures from an image path
@@ -166,13 +230,7 @@ function setup() {
         // magically works since the spritesheet was loaded with the pixi loader
         frames.push(PIXI.Texture.fromFrame('player' + val + '.png'));
     }
-    // create an AnimatedSprite (brings back memories from the days of Flash, right ?)
     var player = new PIXI.extras.AnimatedSprite(frames);
-
-    /*
-     * An AnimatedSprite inherits all the properties of a PIXI sprite
-     * so you can change its position, its anchor, mask it, etc
-     */
 
     player.anchor.set(0.5);
     player.animationSpeed = 0.5;
@@ -180,7 +238,7 @@ function setup() {
     player.width = 250;
     stage.addChild(player);
 
-    var bg6Texture = PIXI.Texture.fromImage("images/background6.png");
+    var bg6Texture = TextureCache["images/background6.png"];
     var bg6 = new PIXI.extras.TilingSprite(bg6Texture, screenWidth, screenHeight);
     bg6.tilePosition.x = 0;
     bg6.tilePosition.y = 0;
@@ -195,11 +253,13 @@ function setup() {
     textBest.x = 600;
     stage.addChild(textBest);
 
-    var home1Texture = PIXI.Texture.fromImage("images/home1.png");
+    var home1Texture = TextureCache["images/home1.png"];
     var home1 = new PIXI.extras.TilingSprite(home1Texture, screenWidth, screenHeight);
     home1.tilePosition.x = 0;
     home1.tilePosition.y = 0;
     stage.addChild(home1);
+
+
 
     // var text1Content = "Qello world! "
     // var spaces1 = "$1 "; // put any number of spaces after the
@@ -335,46 +395,23 @@ function setup() {
     stage.addChild(buttonSounds);
 
     var textPlay = new PIXI.Text("Tape n'importe où pour rentrer chez toi", style3);
+    textPlay.fadeOpacity = 1;
     stage.addChild(textPlay);
 
-    // BAD LINK 2
-    var link2Texture = TextureCache["images/link.png"];
-    var rectangle2 = new PIXI.Rectangle(0, 96, 32, 32);
-    link2Texture.frame = rectangle2;
-    var badLink2 = new Sprite(link2Texture);
-    badLink2.interactive = true;
-    stage.addChild(badLink2);
+    // Animate the rotation
+    app.ticker.add(function() {
+        if(textPlay.fadeOpacity) {
+            textPlay.alpha -= 0.01;
+        }
+        else {
+            textPlay.alpha += 0.01;
+        }
 
-    // BAD LINK 3
-    var link3Texture = TextureCache["images/link.png"];
-    var rectangle3 = new PIXI.Rectangle(0, 96, 32, 32);
-    link3Texture.frame = rectangle3;
-    var badLink3 = new Sprite(link3Texture);
-    badLink3.interactive = true;
-    stage.addChild(badLink3);
+        if (textPlay.alpha <= 0.4) textPlay.fadeOpacity = 0;
+        if (textPlay.alpha >= 1) textPlay.fadeOpacity = 1;
+    });
 
 
-    // BAD LINK 1
-    // create an array of textures from an image path
-    var framesFire = [];
-
-    framesFire.push(PIXI.Texture.fromFrame('fire1.png'));
-    framesFire.push(PIXI.Texture.fromFrame('fire2.png'));
-
-    var fire = new PIXI.extras.AnimatedSprite(framesFire);
-
-    fire.anchor.set(0.5);
-    fire.animationSpeed = 0.1;
-    fire.play();
-    stage.addChild(fire);
-
-
-    var badLink = fire;
-    badLink.interactive = true;
-
-    badLink.x = screenWidth + 200;
-    badLink2.x = screenWidth + 600;
-    badLink3.x = screenWidth + 500;
 
 
     // var layerBlack = new PIXI.Graphics();
@@ -417,7 +454,7 @@ function setup() {
                 sessionStorage.setItem("best", best);
             }
 
-            if (accelerator < 5) parseInt(accelerator += 1 / 2000);
+            if (accelerator < 5) parseInt(accelerator += 1 / 1000);
             else console.log('fin accelération !');
 
             textPoints.text = showPoints + 'm';
@@ -433,11 +470,11 @@ function setup() {
             bg2.tilePosition.x -= 1 * accelerator;
 
             badLink.x -= 1.6 * accelerator;
+            badLinkCopy.x -= 1.6 * accelerator;
             badLink2.x -= 1.6 * accelerator;
             badLink3.x -= 1.6 * accelerator;
 
             player.animationSpeed = 0.5 * accelerator;
-
 
         }
 
@@ -464,11 +501,13 @@ function setup() {
         textPlay.y = screenHeight - (screenHeight / 8);
 
         badLink.y = screenHeight - (screenHeight / 5);
+        badLinkCopy.y = screenHeight - (screenHeight / 5);
         badLink2.y = screenHeight - (screenHeight / 6.4);
-        badLink3.y = screenHeight - (screenHeight / 6.4);
+        badLink3.y = screenHeight - (screenHeight / 10);
 
         buttonPause.x = screenWidth - 60;
         buttonPause.y = 40;
+
 
         renderer.resize(screenWidth, screenHeight);
 
@@ -477,35 +516,71 @@ function setup() {
         }
 
         if (collision(player, badLink)) {
-            dead();
+            if(!badLink.passifOk) {
+                console.log('dead link');
+                 dead();
+            }
         }
 
         if (collision(player, badLink2)) {
-            dead();
+            if(!badLink2.passifOk) {
+                console.log('dead link2');
+                 dead();
+            }
         }
 
         if (collision(player, badLink3)) {
-            dead();
+            if(!badLink3.passifOk) {
+                console.log('dead link3');
+                 dead();
+            }
+        }
+
+        if (badLink.x + 50 <= 0) {
+            badLink.passifOk = 0;
+            badLink.visible = true;
+            getPosition(badLink);
+        }
+
+        if (badLink2.x <= 0) {
+            badLink2.passifOk = 0;
+            badLink2.gotoAndStop(0);
+            getPosition(badLink2);
+        }
+
+        if (badLink3.x <= 0) {
+            badLink3.passifOk = 0;
+            badLink3.gotoAndStop(0);
+            getPosition(badLink3);
         }
 
         function getPosition(obstacle) {
-            obstacle.x = (Math.random() * (screenWidth / 3)) + getFarestLik() + ((screenWidth / 3) * accelerator);
+            var mvt = (Math.random() * (screenWidth / 3)) + getFarestLik() + ((screenWidth / 3) * accelerator);
+            obstacle.x = mvt;
+
+            if (obstacle === badLink) {
+                badLinkCopy.x = mvt;
+            }
 
         }
 
-        fire.mouseup = fire.touchend = fire.touchendoutside = fire.mouseupoutside = function() {
+        badLink.mouseup = badLink.touchend = badLink.touchendoutside = badLink.mouseupoutside = function() {
             console.log('click !');
-            getPosition(fire);
+            badLink.passifOk = 1;
+            badLink.visible = false;
+            badLinkCopy.visible = true;
         }
 
         badLink2.mouseup = badLink2.touchend = badLink2.touchendoutside = badLink2.mouseupoutside = function() {
             console.log('click !');
-            getPosition(badLink2);
+            badLink2.passifOk = 1;
+            badLink2.gotoAndStop(1);
         }
 
         badLink3.mouseup = badLink3.touchend = badLink3.touchendoutside = badLink3.mouseupoutside = function() {
             console.log('click !');
-            getPosition(badLink3);
+            badLink3.passifOk = 1;
+            badLink3.gotoAndStop(1);
         }
 
         function dead() {
@@ -517,7 +592,6 @@ function setup() {
             getPosition(badLink);
             getPosition(badLink2);
             getPosition(badLink3);
-
 
 
             PAUSED = true;

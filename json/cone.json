@@ -1,0 +1,28 @@
+{"frames": {
+
+"cone_1.png":
+{
+	"frame": {"x":1,"y":1,"w":142,"h":174},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":29,"y":13,"w":142,"h":174},
+	"sourceSize": {"w":200,"h":200}
+},
+"cone_2.png":
+{
+	"frame": {"x":1,"y":177,"w":141,"h":88},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":30,"y":99,"w":141,"h":88},
+	"sourceSize": {"w":201,"h":200}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "../images/cone.png",
+	"format": "RGBA8888",
+	"size": {"w":144,"h":266},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:8fa7eb34d09484fa8b49e8d37a9c830b:bb836efd01a3a4de15f37772b5537495:0f5da6149f2d6b8f2f87252e322fd7ff$"
+}
+}
