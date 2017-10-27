@@ -89,7 +89,6 @@ renderer.autoResize = true;
 //load an image and run the `setup` function when it's done
 // @TODO verif loader
 loader
-    .add("images/link.png")
     .add("images/background1.png")
     .add("images/background2.png")
     .add("images/background3.png")
@@ -725,6 +724,11 @@ function setup() {
     }
     buttonRestart.mouseup = buttonRestart.touchend = buttonRestart.touchendoutside = buttonRestart.mouseupoutside = function() {
         restart();
+    }
+
+    stage.interactive = true;
+    stage.mouseup = stage.touchend = stage.touchendoutside = stage.mouseupoutside = function(evt) {
+        console.log(evt);
     }
 
     function pause () {
