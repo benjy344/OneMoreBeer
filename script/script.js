@@ -42133,10 +42133,6 @@ WebFontConfig = {
   custom: {
     families: ["Questrial"],
   }
-  // active: function() {
-  //   // do something
-  //   init();
-  // }
 };
 
 (function() {
@@ -42201,6 +42197,7 @@ var PAUSED   = true;
 var INTRO    = true;
 var MUTE     = false;
 var DEAD     = false;
+var MOUVEINTRO = false;
 var introIsPlaying = false; 
 //var ISLOADING = true;
 var nbPoints = 0;
@@ -42254,6 +42251,7 @@ function setup() {
     bg1.tilePosition.y = 0;
     stage.addChild(bg1);
 
+
     var bg2Texture = PIXI.Texture.fromImage("images/background2.png");
     var bg2 = new PIXI.extras.TilingSprite(bg2Texture, screenWidth, screenHeight);
     bg2.tilePosition.x = 0;
@@ -42281,7 +42279,7 @@ function setup() {
     var home2Texture = PIXI.Texture.fromImage("images/home2.png");
     var home2 = new PIXI.extras.TilingSprite(home2Texture, screenWidth, screenHeight);
     home2.tilePosition.x = 0;
-    home2.tilePosition.y = 0;
+    home2.tilePosition.y = 15;
     stage.addChild(home2);
 
     // PLAYER
@@ -42305,6 +42303,8 @@ function setup() {
     player.animationSpeed = 0.5;
     player.height = 120;
     player.width = 250;
+    player.x = 0;
+    player.y = screenHeight - (screenHeight / 4) ;
     stage.addChild(player);
 
     // PLAYER_chute
@@ -42350,7 +42350,7 @@ function setup() {
     var home1Texture = PIXI.Texture.fromImage("images/home1.png");
     var home1 = new PIXI.extras.TilingSprite(home1Texture, screenWidth, screenHeight);
     home1.tilePosition.x = 0;
-    home1.tilePosition.y = 0;
+    home1.tilePosition.y = 15;
     stage.addChild(home1);
 
     // var text1Content = "Qello world! "
@@ -42406,11 +42406,19 @@ function setup() {
         if (INTRO) {
             launchGame();
             INTRO = false;
+        } else if (DEAD) {
+            restart();
         } else {
             pause();
         }
 
     }
+
+    var logoSprite = PIXI.Sprite.fromImage("images/logo.png");
+    //var logoSprite = new PIXI.extras.TilingSprite(logo, screenWidth, screenHeight);
+    logoSprite.x = (parseInt(window.innerWidth)/2) - 125;
+    logoSprite.y = 80;
+    stage.addChild(logoSprite);
 
       // PauseRestart
 
@@ -42547,187 +42555,210 @@ function setup() {
     }
 
     function launchGame() {
-        PAUSED = false;
-        player.play();
-        layer.visible = false;
+        
+        player.play();        
         textPlay.visible = false;
         gameSound.play();
+        MOUVEINTRO = true;
+
+        
     }
 
     function gameLoop() {
-        //layerBlack.visible = false
-        //ISLOADING? layerBlack.visible = true : layerBlack.visible = false;
+        
         screenWidth = parseInt(window.innerWidth);
         screenHeight = parseInt(window.innerHeight);
-
-        if (INTRO) {
-            if (!introIsPlaying){
-                introIsPlaying = true;
-                introSound.play();
-                introSound.loop = true;                
-            }            
+        if (MOUVEINTRO) {
+            player.x += 2;
+            renderer.render(stage);
+            requestAnimationFrame(gameLoop);
+            if (player.x >= (screenWidth / 4) ){
+                MOUVEINTRO = false;
+                PAUSED = false;
+                player.x = screenWidth / 4;
+                player.y = screenHeight - (screenHeight / 4); 
+            }
         } else {
-            if (DEAD || PAUSED) {
-                if(!introIsPlaying) {
+            
+            if (INTRO) {
+                if (!introIsPlaying){
                     introIsPlaying = true;
                     introSound.play();
-                    introSound.loop = true;                     
+                    introSound.loop = true;                
+                }            
+            } else {                
+                if (DEAD || PAUSED) {
+                    if(!introIsPlaying) {
+                        introIsPlaying = true;
+                        introSound.play();
+                        introSound.loop = true;                     
+                    }
+                } else {
+                    if (logoSprite.alpha > 0 ) {
+                        logoSprite.alpha -= .01;
+                        layer.alpha -= .01;
+                    } else {
+                       logoSprite.visible = false; 
+                       layer.visible = false;
+                       layer.alpha = 1;
+                    }
+
+                    introSound.pause();
+                    introIsPlaying = false;
                 }
-            } else {
-                introSound.pause();
-                introIsPlaying = false;
+                
+            }
+            if (!PAUSED) {
+                nbPoints++;
+                var showPoints = Math.floor(nbPoints / 60);
+
+                if (showPoints > best) {
+                    best = showPoints;
+                    sessionStorage.setItem("best", best);
+                }
+
+                if (accelerator < 5) parseInt(accelerator += 1 / 2000);
+                else console.log('fin accelération !');
+
+                textPoints.text = showPoints + 'm';
+                textBest.text = 'record : ' + best + 'm';
+
+                home2.x -= 1;
+                home1.x -= 1;
+
+                bg6.tilePosition.x -= 3 * accelerator;
+                bg5.tilePosition.x -= 3 * accelerator;
+                bg4.tilePosition.x -= 0.7 * accelerator;
+                bg3.tilePosition.x -= 1.5 * accelerator;
+                bg2.tilePosition.x -= 1 * accelerator;
+
+                badLink.x -= 1.6 * accelerator;
+                badLink2.x -= 1.6 * accelerator;
+                badLink3.x -= 1.6 * accelerator;
+
+                player.animationSpeed = 0.5 * accelerator;
+            }
+
+
+            resize(bg6, bg6Texture);
+            resize(bg5, bg5Texture);
+            resize(bg4, bg4Texture);
+            resize(bg3, bg3Texture);
+            resize(bg2, bg2Texture);
+            resize(bg1, bg1Texture);
+            resize(home2, home2Texture);
+            resize(home1, home1Texture);
+
+            layer.width = screenWidth;
+            layer.height = screenHeight;
+
+
+            
+
+
+            textPoints.x = 20;
+            textBest.x = 20;
+            textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
+            textPlay.y = screenHeight - (screenHeight / 8);
+
+            badLink.y = screenHeight - (screenHeight / 5);
+            badLink2.y = screenHeight - (screenHeight / 6.4);
+            badLink3.y = screenHeight - (screenHeight / 6.4);
+
+            buttonPause.x = screenWidth - 60;
+            buttonPause.y = 25;
+
+            renderer.resize(screenWidth, screenHeight);
+
+            function getFarestLik() {
+                return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
             }
             
-        }
-        if (!PAUSED) {
-            nbPoints++;
-            var showPoints = Math.floor(nbPoints / 60);
 
-            if (showPoints > best) {
-                best = showPoints;
-                sessionStorage.setItem("best", best);
+            if (collision(player, badLink)) {
+                dead();
             }
 
-            if (accelerator < 5) parseInt(accelerator += 1 / 2000);
-            else console.log('fin accelération !');
+            if (collision(player, badLink2)) {
+                dead();
+            }
 
-            textPoints.text = showPoints + 'm';
-            textBest.text = 'record : ' + best + 'm';
+            if (collision(player, badLink3)) {
+                dead();
+            }
 
-            home2.x -= 1;
-            home1.x -= 1;
+            function getPosition(obstacle) {
+                obstacle.x = (Math.random() * (screenWidth / 3)) + getFarestLik() + ((screenWidth / 3) * accelerator);
 
-            bg6.tilePosition.x -= 3 * accelerator;
-            bg5.tilePosition.x -= 3 * accelerator;
-            bg4.tilePosition.x -= 0.7 * accelerator;
-            bg3.tilePosition.x -= 1.5 * accelerator;
-            bg2.tilePosition.x -= 1 * accelerator;
+            }
 
-            badLink.x -= 1.6 * accelerator;
-            badLink2.x -= 1.6 * accelerator;
-            badLink3.x -= 1.6 * accelerator;
+            fire.mouseup = fire.touchend = fire.touchendoutside = fire.mouseupoutside = function() {
+                console.log('click !');
+                getPosition(fire);
+            }
 
-            player.animationSpeed = 0.5 * accelerator;
-        }
+            badLink2.mouseup = badLink2.touchend = badLink2.touchendoutside = badLink2.mouseupoutside = function() {
+                console.log('click !');
+                getPosition(badLink2);
+            }
+
+            badLink3.mouseup = badLink3.touchend = badLink3.touchendoutside = badLink3.mouseupoutside = function() {
+                console.log('click !');
+                getPosition(badLink3);
+            }
+
+            function dead() {
+                DEAD = true;
+                var looseText = new PIXI.Text('Perdu ! ', style);
+                looseText.x = screenWidth / 2 - (looseText.width / 2);
+                looseText.y = screenHeight / 2 - (looseText.height / 2);
+                stage.addChild(looseText);
+
+                getPosition(badLink);
+                getPosition(badLink2);
+                getPosition(badLink3);
+
+                playerChute.x = player.x;
+                playerChute.y = player.y;
+
+                player.visible = false;
+                playerChute.visible = true;
+                gameSound.pause();
+                looseSound.play();            
+                setTimeout(function () {
+                    if (!introIsPlaying) {
+                        introSound.play();
+                        introSound.loop = true;
+                        introIsPlaying = true;
+                    }
+                }, 2500)
+
+                playerChute.play();
+                playerChute.loop = false;
 
 
-        resize(bg6, bg6Texture);
-        resize(bg5, bg5Texture);
-        resize(bg4, bg4Texture);
-        resize(bg3, bg3Texture);
-        resize(bg2, bg2Texture);
-        resize(bg1, bg1Texture);
-        resize(home2, home2Texture);
-        resize(home1, home1Texture);
 
-        layer.width = screenWidth;
-        layer.height = screenHeight;
+                PAUSED = true;
+                layer.visible = true;
+                player.gotoAndStop(1);
+                accelerator = 1;
 
-        player.x = screenWidth / 4;
-        player.y = screenHeight - (screenHeight / 4);
+                // setTimeout(function() {
+                //     nbPoints = 0;
+                //     home2.x = 0;
+                //     home1.x = 0;
+                //     stage.removeChild(looseText);
+                //     PAUSED = false;
+                //     layer.visible = false;
+                //     player.play();
+                // }, 1500);
+            }
 
 
-        textPoints.x = 20;
-        textBest.x = 20;
-        textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
-        textPlay.y = screenHeight - (screenHeight / 8);
-
-        badLink.y = screenHeight - (screenHeight / 5);
-        badLink2.y = screenHeight - (screenHeight / 6.4);
-        badLink3.y = screenHeight - (screenHeight / 6.4);
-
-        buttonPause.x = screenWidth - 60;
-        buttonPause.y = 40;
-
-        renderer.resize(screenWidth, screenHeight);
-
-        function getFarestLik() {
-            return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
+            renderer.render(stage);
+            requestAnimationFrame(gameLoop);
         }
         
-
-        if (collision(player, badLink)) {
-            dead();
-        }
-
-        if (collision(player, badLink2)) {
-            dead();
-        }
-
-        if (collision(player, badLink3)) {
-            dead();
-        }
-
-        function getPosition(obstacle) {
-            obstacle.x = (Math.random() * (screenWidth / 3)) + getFarestLik() + ((screenWidth / 3) * accelerator);
-
-        }
-
-        fire.mouseup = fire.touchend = fire.touchendoutside = fire.mouseupoutside = function() {
-            console.log('click !');
-            getPosition(fire);
-        }
-
-        badLink2.mouseup = badLink2.touchend = badLink2.touchendoutside = badLink2.mouseupoutside = function() {
-            console.log('click !');
-            getPosition(badLink2);
-        }
-
-        badLink3.mouseup = badLink3.touchend = badLink3.touchendoutside = badLink3.mouseupoutside = function() {
-            console.log('click !');
-            getPosition(badLink3);
-        }
-
-        function dead() {
-            DEAD = true;
-            var looseText = new PIXI.Text('Perdu ! ', style);
-            looseText.x = screenWidth / 2 - (looseText.width / 2);
-            looseText.y = screenHeight / 2 - (looseText.height / 2);
-            stage.addChild(looseText);
-
-            getPosition(badLink);
-            getPosition(badLink2);
-            getPosition(badLink3);
-
-            playerChute.x = player.x;
-            playerChute.y = player.y;
-
-            player.visible = false;
-            playerChute.visible = true;
-            gameSound.pause();
-            looseSound.play();            
-            setTimeout(function () {
-                if (!introIsPlaying) {
-                    introSound.play();
-                    introSound.loop = true;
-                    introIsPlaying = true;
-                }
-            }, 2500)
-
-            playerChute.play();
-            playerChute.loop = false;
-
-
-
-            PAUSED = true;
-            layer.visible = true;
-            player.gotoAndStop(1);
-            accelerator = 1;
-
-            // setTimeout(function() {
-            //     nbPoints = 0;
-            //     home2.x = 0;
-            //     home1.x = 0;
-            //     stage.removeChild(looseText);
-            //     PAUSED = false;
-            //     layer.visible = false;
-            //     player.play();
-            // }, 1500);
-        }
-
-
-        renderer.render(stage);
-        requestAnimationFrame(gameLoop);
     }
 
 
