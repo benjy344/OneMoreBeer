@@ -1,0 +1,28 @@
+{"frames": {
+
+"mute0.png":
+{
+	"frame": {"x":1083,"y":1,"w":1059,"h":1059},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1059,"h":1059},
+	"sourceSize": {"w":1059,"h":1059}
+},
+"mute1.png":
+{
+	"frame": {"x":1,"y":1,"w":1080,"h":1080},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1080,"h":1080},
+	"sourceSize": {"w":1080,"h":1080}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "../images/buttons/mute.png",
+	"format": "RGBA8888",
+	"size": {"w":2143,"h":1082},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:4400f2e15f05dcf94748cbc060aad747:10a11166370bd3df621ed9b47b6a414b:188a70e9c9b20bd98d6990e39ce7ee6a$"
+}
+}

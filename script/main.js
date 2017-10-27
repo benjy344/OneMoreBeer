@@ -17,9 +17,8 @@ var Container           = PIXI.Container,
     TextureCache        = PIXI.utils.TextureCache,
     app                 = new PIXI.Application();
 
-    var screenWidth = window.innerWidth;
-    var screenHeight = window.innerHeight;
-
+    var screenWidth = parseInt(window.innerWidth);
+    var screenHeight = parseInt(window.innerHeight);
 
 
 //Create a Pixi stage and renderer and add the
@@ -58,9 +57,12 @@ var style3 = new PIXI.TextStyle({
     fill: ['#ffffff']
 });
 
-var PAUSED = true;
+var PAUSED   = true;
+var INTRO    = true;
+var MUTE     = false;
 var nbPoints = 0;
-var best = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
+var best     = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
+var accelerator = 1;
 
 document.body.appendChild(renderer.view);
 
@@ -74,6 +76,9 @@ loader
     .add("images/link.png")
     .add("images/background.png")
     .add("playerWalk.json")
+    .add("json/buttonPause.json")
+    .add('json/fire.json')
+    .add("json/mute.json")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -135,16 +140,6 @@ function setup() {
     home2.tilePosition.y = 0;
     stage.addChild(home2);
 
-    // LINK
-    var texture = TextureCache["images/link.png"];
-    var rectangle = new PIXI.Rectangle(0, 96, 32, 32);
-    texture.frame = rectangle;
-    // var link = new Sprite(texture);
-    // link.x = 32;
-    // link.height = 150;
-    // stage.addChild(link);
-
-
     // PLAYER
     // create an array of textures from an image path
     var frames = [];
@@ -175,11 +170,12 @@ function setup() {
     stage.addChild(bg6);
 
     var textPoints = new PIXI.Text(nbPoints+ 'm', style);
-    textPoints.y = 20;
+    textPoints.position.y = 20;
     stage.addChild(textPoints);
 
     var textBest = new PIXI.Text('record : ' + best + 'm', style2);
     textBest.y = 65;
+    textBest.x = 635;
     stage.addChild(textBest);
 
     var home1Texture = PIXI.Texture.fromImage("images/home1.png");
@@ -188,11 +184,35 @@ function setup() {
     home1.tilePosition.y = 0;
     stage.addChild(home1);
 
-    var buttonPause = PIXI.Texture.fromImage("images/pause.png");
-    var pauseButton = new PIXI.extras.TilingSprite(buttonPause, screenWidth, screenHeight);
-    pauseButton.tilePosition.x = 0;
-    pauseButton.tilePosition.y = 0;
-    stage.addChild(pauseButton);
+
+    // PauseButton
+
+    var framesButtonPause = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonPause.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
+    }
+    var buttonPause = new PIXI.extras.AnimatedSprite(framesButtonPause);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonPause.height = 40;
+    buttonPause.width = 40;
+    buttonPause.interactive = true;
+    buttonPause.animationSpeed = 1;
+    // buttonPause.on('touchstart', (event) => {
+    //     console.log('touchstart')
+    //     buttonPause.gotoAndStop(1);
+    //     pause();
+    // });
+    buttonPause.buttonMode = true;
+    stage.addChild(buttonPause);
+
+
+
 
     var layer = new PIXI.Graphics();
     layer.beginFill(0x000000, 0.4);
@@ -203,41 +223,126 @@ function setup() {
     layer.interactive = true;
 
     layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function() {
-        launchGame();
+        if (INTRO) {
+            launchGame();
+            INTRO = false;
+        } else {
+            pause();
+        }
+
     }
+
+      // PauseRestart
+
+    var framesButtonRestart = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonRestart.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
+    }
+    var buttonRestart = new PIXI.extras.AnimatedSprite(framesButtonRestart);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonRestart.x = (screenWidth / 2) + 60;
+    buttonRestart.y = screenHeight / 2;
+    buttonRestart.height = 40;
+    buttonRestart.width = 40;
+    buttonRestart.interactive = true;
+    buttonRestart.animationSpeed = 1;
+    buttonRestart.visible = false;
+    buttonRestart.buttonMode = true;
+    stage.addChild(buttonRestart);
+
+
+    var framesButtonMute = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonMute.push(PIXI.Texture.fromFrame('mute' + val + '.png'));
+    }
+    var buttonMute = new PIXI.extras.AnimatedSprite(framesButtonMute);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonMute.x = (screenWidth / 2) - 100;
+    buttonMute.y = screenHeight / 2;
+    buttonMute.height = 40;
+    buttonMute.width = 40;
+    buttonMute.interactive = true;
+    buttonMute.animationSpeed = 1;
+    buttonMute.visible = false;
+    buttonMute.buttonMode = true;
+    stage.addChild(buttonMute);
+
+    var framesButtonSounds = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonSounds.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
+    }
+    var buttonSounds = new PIXI.extras.AnimatedSprite(framesButtonSounds);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonSounds.x = (screenWidth / 2) - 20;
+    buttonSounds.y = (screenHeight / 2);
+    buttonSounds.height = 40;
+    buttonSounds.width = 40;
+    buttonSounds.interactive = true;
+    buttonSounds.animationSpeed = 1;
+    buttonSounds.visible = false;
+    // buttonSounds.on('touchstart', (event) => {
+    //     console.log('touchstart')
+    //     buttonSounds.gotoAndStop(1);
+    //     Sounds();
+    // });
+    buttonSounds.buttonMode = true;
+    stage.addChild(buttonSounds);
 
     var textPlay = new PIXI.Text("Tape n'importe où pour rentrer chez toi", style3);
     stage.addChild(textPlay);
 
-    // incendie
-    //
-    // var incendieImages = ['incendie0.png', 'incendie1.png'];
-    // var framesIncendie = [];
-    // for (var i = 0; i < 1; i++) {
-    //     var val = i;
-    //     // magically works since the spritesheet was loaded with the pixi loader
-    //     framesIncendie.push(PIXI.Texture.fromFrame('incendie' + val + '.png'));
-    // }
-    //
-    // player.x = app.renderer.width / 2;
-    // player.y = 250;;
-    // player.anchor.set(0.5);
-    // player.animationSpeed = 0.5;
-    // player.height = 170;
-    // player.width = 170;
-    // player.play();
-    // stage.addChild(player);
-    //
-    // var incendie = new PIXI.extras.AnimatedSprite(framesIncendie);
+    // BAD LINK 2
+    var link2Texture = TextureCache["images/link.png"];
+    var rectangle2 = new PIXI.Rectangle(0, 96, 32, 32);
+    link2Texture.frame = rectangle2;
+    var badLink2 = new Sprite(link2Texture);
+    badLink2.interactive = true;
+    stage.addChild(badLink2);
+
+    // BAD LINK 3
+    var link3Texture = TextureCache["images/link.png"];
+    var rectangle3 = new PIXI.Rectangle(0, 96, 32, 32);
+    link3Texture.frame = rectangle3;
+    var badLink3 = new Sprite(link3Texture);
+    badLink3.interactive = true;
+    stage.addChild(badLink3);
 
 
 
+    // create an array of textures from an image path
+    var framesFire = [];
 
-    // BAD LINK
-    var badLink = new Sprite(texture);
+    framesFire.push(PIXI.Texture.fromFrame('fire1.png'));
+    framesFire.push(PIXI.Texture.fromFrame('fire2.png'));
+
+    var fire = new PIXI.extras.AnimatedSprite(framesFire);
+
+    fire.anchor.set(0.5);
+    fire.animationSpeed = 0.1;
+    fire.play();
+    stage.addChild(fire);
+
+
+    var badLink = fire;
     badLink.interactive = true;
-    badLink.x = screenWidth + 200;
-    stage.addChild(badLink);
 
     gameLoop();
 
@@ -251,15 +356,15 @@ function setup() {
     function launchGame() {
         PAUSED = false;
         player.play();
-        gameSound.play();
         layer.visible = false;
         textPlay.visible = false;
+        gameSound.play();
     }
 
     function gameLoop() {
 
-        screenWidth = window.innerWidth;
-        screenHeight = window.innerHeight;
+        screenWidth = parseInt(window.innerWidth);
+        screenHeight = parseInt(window.innerHeight);
 
         if (!PAUSED) {
             nbPoints++;
@@ -270,6 +375,9 @@ function setup() {
                 sessionStorage.setItem("best", best);
             }
 
+            if (accelerator < 5) accelerator += 1 / 2000;
+            else console.log('fin accelération !');
+
             textPoints.text = showPoints + 'm';
             textBest.text = 'record : ' + best + 'm';
 
@@ -277,12 +385,19 @@ function setup() {
             home2.x -= 1;
             home1.x -= 1;
 
-            bg6.tilePosition.x -= 3;
-            bg5.tilePosition.x -= 3;
-            bg4.tilePosition.x -= 0.7;
-            bg3.tilePosition.x -= 1.5;
-            bg2.tilePosition.x -= 1;
-            badLink.x -= 1.6;
+            bg6.tilePosition.x -= 3 * accelerator;
+            bg5.tilePosition.x -= 3 * accelerator;
+            bg4.tilePosition.x -= 0.7 * accelerator;
+            bg3.tilePosition.x -= 1.5 * accelerator;
+            bg2.tilePosition.x -= 1 * accelerator;
+
+            badLink.x -= 1.6 * accelerator;
+            badLink2.x -= 1.6 * accelerator;
+            badLink3.x -= 1.6 * accelerator;
+
+            player.animationSpeed = 0.5 * accelerator;
+
+
         }
 
 
@@ -302,48 +417,138 @@ function setup() {
         player.y = screenHeight - (screenHeight / 4);
 
 
-        textPoints.x = screenWidth - 20 - textPoints.width;
-        textBest.x = screenWidth - 25 - textBest.width;
+        textPoints.x = 20;
+        textBest.x = 20;
         textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
         textPlay.y = screenHeight - (screenHeight / 8);
 
+        badLink2.x = screenWidth + 600;
+        fire.x = screenWidth + 200;
+        badLink3.x = screenWidth + 500;
+        
+        badLink.y = screenHeight - (screenHeight / 5);
+        badLink2.y = screenHeight - (screenHeight / 6.4);
+        badLink3.y = screenHeight - (screenHeight / 6.4);
 
-        badLink.y = screenHeight - (screenHeight / 6.4);
-        // link.y = screenHeight - (screenHeight / 2);
+        buttonPause.x = screenWidth - 60;
+        buttonPause.y = 40;
 
         renderer.resize(screenWidth, screenHeight);
 
-
+        function getFarestLik() {
+            return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
+        }
 
         if (collision(player, badLink)) {
-            badLink.x = screenWidth + 200;
             dead();
         }
 
-        badLink.mouseup = badLink.touchend = badLink.touchendoutside = badLink.mouseupoutside = function() {
-            console.log('click');
-            badLink.x = screenWidth + 200;
+        if (collision(player, badLink2)) {
+            dead();
         }
+
+        if (collision(player, badLink3)) {
+            dead();
+        }
+
+        function getPosition(obstacle) {
+            obstacle.x = (Math.random() * (screenWidth / 3)) + getFarestLik() + ((screenWidth / 3) * accelerator);
+
+        }
+
+        fire.mouseup = fire.touchend = fire.touchendoutside = fire.mouseupoutside = function() {
+            console.log('click !');
+            getPosition(fire);
+        }
+
+        badLink2.mouseup = badLink2.touchend = badLink2.touchendoutside = badLink2.mouseupoutside = function() {
+            console.log('click !');
+            getPosition(badLink2);
+        }
+
+        badLink3.mouseup = badLink3.touchend = badLink3.touchendoutside = badLink3.mouseupoutside = function() {
+            console.log('click !');
+            getPosition(badLink3);
+        }
+
+        function dead() {
+            var looseText = new PIXI.Text('Perdu ! ', style);
+            looseText.x = screenWidth / 2 - (looseText.width / 2);
+            looseText.y = screenHeight / 2 - (looseText.height / 2);
+            stage.addChild(looseText);
+
+            getPosition(badLink);
+            getPosition(badLink2);
+            getPosition(badLink3);
+
+
+            PAUSED = true;
+            layer.visible = true;
+            player.gotoAndStop(1);
+
+            setTimeout(function() {
+                nbPoints = 0;
+                stage.removeChild(looseText);
+                PAUSED = false;
+                layer.visible = false;
+                player.play();
+            }, 1500);
+        }
+
 
         renderer.render(stage);
         requestAnimationFrame(gameLoop);
     }
 
-    function dead() {
-        var looseText = new PIXI.Text('Perdu ! ', style);
-        looseText.x = screenWidth / 2 - (looseText.width / 2);
-        looseText.y = screenHeight / 2 - (looseText.height / 2);
-        stage.addChild(looseText);
 
-        setTimeout(function() {
-            nbPoints = 0;
-            stage.removeChild(looseText);
-            // gameLoop();
-        }, 1500);
+
+
+
+    buttonPause.mouseup = buttonPause.touchend = buttonPause.touchendoutside = buttonPause.mouseupoutside = function() {
+        pause();
+    }
+    buttonMute.mouseup = buttonMute.touchend = buttonMute.touchendoutside = buttonMute.mouseupoutside = function() {
+        toggleMute();
     }
 
     function pause () {
-         PAUSED = true;
+
+        PAUSED = !PAUSED;
+
+        if (PAUSED) {
+
+            if(!MUTE) {
+                gameSound.pause();
+                PauseSound.play();
+                introSound.play();
+            }
+            introSound.loop = true;
+            player.gotoAndStop(1);
+            layer.visible = true;
+            buttonRestart.visible = true;
+            buttonMute.visible = true;
+            buttonSounds.visible = true;
+         } else {
+
+            if(!MUTE) {
+                gameSound.play();
+                introSound.pause();
+            }
+            player.play();
+            layer.visible = false;
+            buttonRestart.visible = false;
+            buttonMute.visible = false;
+            buttonSounds.visible = false;
+         }
+    }
+
+    function toggleMute () {
+        MUTE = !MUTE;
+        if (MUTE){
+            PIXI.sound.muteAll();
+        } else {
+            PIXI.sound.unmuteAll();
+        }
     }
 
 }
@@ -353,5 +558,5 @@ function setup() {
 function collision(a, b) {
     var ab = a.getBounds();
     var bb = b.getBounds();
-    return ((ab.x + ab.width - 110) > bb.x) && (ab.x < (bb.x + bb.width)) && ((ab.y + ab.height) > bb.y && ab.y) < (bb.y + bb.height);
+    return ((ab.x + ab.width - 150) > bb.x) && (ab.x < (bb.x + bb.width)) && ((ab.y + ab.height) > bb.y && ab.y) < (bb.y + bb.height);
 }
