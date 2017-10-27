@@ -42200,6 +42200,8 @@ var style3 = new PIXI.TextStyle({
 var PAUSED   = true;
 var INTRO    = true;
 var MUTE     = false;
+var DEAD     = false;
+var introIsPlaying = false; 
 //var ISLOADING = true;
 var nbPoints = 0;
 var best     = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
@@ -42558,6 +42560,25 @@ function setup() {
         screenWidth = parseInt(window.innerWidth);
         screenHeight = parseInt(window.innerHeight);
 
+        if (INTRO) {
+            if (!introIsPlaying){
+                introIsPlaying = true;
+                introSound.play();
+                introSound.loop = true;                
+            }            
+        } else {
+            if (DEAD || PAUSED) {
+                if(!introIsPlaying) {
+                    introIsPlaying = true;
+                    introSound.play();
+                    introSound.loop = true;                     
+                }
+            } else {
+                introSound.pause();
+                introIsPlaying = false;
+            }
+            
+        }
         if (!PAUSED) {
             nbPoints++;
             var showPoints = Math.floor(nbPoints / 60);
@@ -42587,8 +42608,6 @@ function setup() {
             badLink3.x -= 1.6 * accelerator;
 
             player.animationSpeed = 0.5 * accelerator;
-
-
         }
 
 
@@ -42625,6 +42644,7 @@ function setup() {
         function getFarestLik() {
             return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
         }
+        
 
         if (collision(player, badLink)) {
             dead();
@@ -42659,6 +42679,7 @@ function setup() {
         }
 
         function dead() {
+            DEAD = true;
             var looseText = new PIXI.Text('Perdu ! ', style);
             looseText.x = screenWidth / 2 - (looseText.width / 2);
             looseText.y = screenHeight / 2 - (looseText.height / 2);
@@ -42668,6 +42689,24 @@ function setup() {
             getPosition(badLink2);
             getPosition(badLink3);
 
+            playerChute.x = player.x;
+            playerChute.y = player.y;
+
+            player.visible = false;
+            playerChute.visible = true;
+            gameSound.pause();
+            looseSound.play();            
+            setTimeout(function () {
+                if (!introIsPlaying) {
+                    introSound.play();
+                    introSound.loop = true;
+                    introIsPlaying = true;
+                }
+            }, 2500)
+
+            playerChute.play();
+            playerChute.loop = false;
+
 
 
             PAUSED = true;
@@ -42675,39 +42714,20 @@ function setup() {
             player.gotoAndStop(1);
             accelerator = 1;
 
-            setTimeout(function() {
-                nbPoints = 0;
-                home2.x = 0;
-                home1.x = 0;
-                stage.removeChild(looseText);
-                PAUSED = false;
-                layer.visible = false;
-                player.play();
-            }, 1500);
+            // setTimeout(function() {
+            //     nbPoints = 0;
+            //     home2.x = 0;
+            //     home1.x = 0;
+            //     stage.removeChild(looseText);
+            //     PAUSED = false;
+            //     layer.visible = false;
+            //     player.play();
+            // }, 1500);
         }
 
 
         renderer.render(stage);
         requestAnimationFrame(gameLoop);
-    }
-
-    function dead() {
-        var looseText = new PIXI.Text('Perdu ! ', style);
-        looseText.x = window.innerWidth / 2 - (looseText.width / 2);
-        looseText.y = window.innerHeight / 2 - (looseText.height / 2);
-        stage.addChild(looseText);
-
-        playerChute.x = player.x;
-        playerChute.y = player.y;
-
-        player.visible = false;
-        playerChute.visible = true;
-
-        setTimeout(function() {
-            nbPoints = 0;
-            stage.removeChild(looseText);
-            // gameLoop();
-        }, 1500);
     }
 
 
@@ -42731,6 +42751,8 @@ function setup() {
                 gameSound.pause();
                 PauseSound.play();
                 introSound.play();
+                introSound.loop = true;
+                introIsPlaying = true;
             }
             introSound.loop = true;
             player.gotoAndStop(1);
@@ -42743,6 +42765,7 @@ function setup() {
             if(!MUTE) {
                 gameSound.play();
                 introSound.pause();
+                introIsPlaying = false;
             }
             player.play();
             layer.visible = false;
@@ -42775,6 +42798,7 @@ function setup() {
     }
 
 }
+
 
 
 
