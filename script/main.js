@@ -1,9 +1,6 @@
 var PIXI = require('pixi.js');
 var PIXISOUND = require('pixi-sound');
 
-console.log(PIXISOUND)
-
-
 var type = "WebGL"
 if (!PIXI.utils.isWebGLSupported()) {
     type = "canvas"
@@ -20,11 +17,15 @@ var Container           = PIXI.Container,
     TextureCache        = PIXI.utils.TextureCache,
     app                 = new PIXI.Application();
 
+    var screenWidth = window.innerWidth;
+    var screenHeight = window.innerHeight;
+
+
 
 //Create a Pixi stage and renderer and add the
 //renderer.view to the DOM
 var stage = new Container(),
-    renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, {
+    renderer = PIXI.autoDetectRenderer(screenWidth, screenHeight, {
         antialias: true,
         transparent: false,
         resolution: 1
@@ -96,42 +97,40 @@ function setup() {
     var PauseSound = PIXI.sound.Sound.from('sounds/ClickOnPause.mp3');
     var looseSound = PIXI.sound.Sound.from('sounds/loose.mp3');
     var introSound = PIXI.sound.Sound.from('sounds/intro_pause.mp3');
-
-    gameSound.play();
     gameSound.loop = true
 
     var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
-    var bg1 = new PIXI.extras.TilingSprite(bg1Texture, window.innerWidth, window.innerHeight);
+    var bg1 = new PIXI.extras.TilingSprite(bg1Texture, screenWidth, screenHeight);
     bg1.tilePosition.x = 0;
     bg1.tilePosition.y = 0;
     stage.addChild(bg1);
 
     var bg2Texture = PIXI.Texture.fromImage("images/background2.png");
-    var bg2 = new PIXI.extras.TilingSprite(bg2Texture, window.innerWidth, window.innerHeight);
+    var bg2 = new PIXI.extras.TilingSprite(bg2Texture, screenWidth, screenHeight);
     bg2.tilePosition.x = 0;
     bg2.tilePosition.y = 0;
     stage.addChild(bg2);
-    
+
     var bg3Texture = PIXI.Texture.fromImage("images/background3.png");
-    var bg3 = new PIXI.extras.TilingSprite(bg3Texture, window.innerWidth, window.innerHeight);
+    var bg3 = new PIXI.extras.TilingSprite(bg3Texture, screenWidth, screenHeight);
     bg3.tilePosition.x = 0;
     bg3.tilePosition.y = 0;
     stage.addChild(bg3);
 
     var bg4Texture = PIXI.Texture.fromImage("images/background4.png");
-    var bg4 = new PIXI.extras.TilingSprite(bg4Texture, window.innerWidth, window.innerHeight);
+    var bg4 = new PIXI.extras.TilingSprite(bg4Texture, screenWidth, screenHeight);
     bg4.tilePosition.x = 0;
     bg4.tilePosition.y = 0;
     stage.addChild(bg4);
 
     var bg5Texture = PIXI.Texture.fromImage("images/background5.png");
-    var bg5 = new PIXI.extras.TilingSprite(bg5Texture, window.innerWidth, window.innerHeight);
+    var bg5 = new PIXI.extras.TilingSprite(bg5Texture, screenWidth, screenHeight);
     bg5.tilePosition.x = 0;
     bg5.tilePosition.y = 0;
     stage.addChild(bg5);
 
     var home2Texture = PIXI.Texture.fromImage("images/home2.png");
-    var home2 = new PIXI.extras.TilingSprite(home2Texture, window.innerWidth, window.innerHeight);
+    var home2 = new PIXI.extras.TilingSprite(home2Texture, screenWidth, screenHeight);
     home2.tilePosition.x = 0;
     home2.tilePosition.y = 0;
     stage.addChild(home2);
@@ -162,8 +161,7 @@ function setup() {
      * An AnimatedSprite inherits all the properties of a PIXI sprite
      * so you can change its position, its anchor, mask it, etc
      */
-    player.x = window.innerWidth / 4;
-    player.y = 270;
+
     player.anchor.set(0.5);
     player.animationSpeed = 0.5;
     player.height = 120;
@@ -171,7 +169,7 @@ function setup() {
     stage.addChild(player);
 
     var bg6Texture = PIXI.Texture.fromImage("images/background6.png");
-    var bg6 = new PIXI.extras.TilingSprite(bg6Texture, window.innerWidth, window.innerHeight);
+    var bg6 = new PIXI.extras.TilingSprite(bg6Texture, screenWidth, screenHeight);
     bg6.tilePosition.x = 0;
     bg6.tilePosition.y = 0;
     stage.addChild(bg6);
@@ -185,20 +183,20 @@ function setup() {
     stage.addChild(textBest);
 
     var home1Texture = PIXI.Texture.fromImage("images/home1.png");
-    var home1 = new PIXI.extras.TilingSprite(home1Texture, window.innerWidth, window.innerHeight);
+    var home1 = new PIXI.extras.TilingSprite(home1Texture, screenWidth, screenHeight);
     home1.tilePosition.x = 0;
     home1.tilePosition.y = 0;
     stage.addChild(home1);
 
     var buttonPause = PIXI.Texture.fromImage("images/pause.png");
-    var pauseButton = new PIXI.extras.TilingSprite(buttonPause, window.innerWidth, window.innerHeight);
+    var pauseButton = new PIXI.extras.TilingSprite(buttonPause, screenWidth, screenHeight);
     pauseButton.tilePosition.x = 0;
     pauseButton.tilePosition.y = 0;
     stage.addChild(pauseButton);
 
     var layer = new PIXI.Graphics();
     layer.beginFill(0x000000, 0.4);
-    layer.drawRect(0, 0, window.innerWidth, window.innerHeight);
+    layer.drawRect(0, 0, screenWidth, screenHeight);
     layer.endFill();
     stage.addChild(layer);
 
@@ -209,7 +207,6 @@ function setup() {
     }
 
     var textPlay = new PIXI.Text("Tape n'importe où pour rentrer chez toi", style3);
-    textPlay.y = window.innerHeight - 50;
     stage.addChild(textPlay);
 
     // incendie
@@ -239,7 +236,7 @@ function setup() {
     // BAD LINK
     var badLink = new Sprite(texture);
     badLink.interactive = true;
-    badLink.x = window.innerWidth + 200;
+    badLink.x = screenWidth + 200;
     stage.addChild(badLink);
 
     gameLoop();
@@ -247,19 +244,36 @@ function setup() {
     function resize(screen, texture) {
         screen.height = texture.height;
         screen.width = texture.width;
-        screen.scale.y = (window.innerHeight / texture.height);
-        screen.scale.x = (window.innerHeight / texture.height);
+        screen.scale.y = (screenHeight / texture.height);
+        screen.scale.x = (screenHeight / texture.height);
     }
 
     function launchGame() {
         PAUSED = false;
         player.play();
+        gameSound.play();
         layer.visible = false;
         textPlay.visible = false;
     }
 
     function gameLoop() {
+
+        screenWidth = window.innerWidth;
+        screenHeight = window.innerHeight;
+
         if (!PAUSED) {
+            nbPoints++;
+            var showPoints = Math.floor(nbPoints / 60);
+
+            if (showPoints > best) {
+                best = showPoints;
+                sessionStorage.setItem("best", best);
+            }
+
+            textPoints.text = showPoints + 'm';
+            textBest.text = 'record : ' + best + 'm';
+
+
             home2.x -= 1;
             home1.x -= 1;
 
@@ -269,19 +283,6 @@ function setup() {
             bg3.tilePosition.x -= 1.5;
             bg2.tilePosition.x -= 1;
             badLink.x -= 1.6;
-
-            nbPoints++;
-            var showPoints = Math.floor(nbPoints / 60);
-
-            if (showPoints > best) {
-                best = showPoints;
-                sessionStorage.setItem("best", best);
-                console.log('BEST');
-            }
-
-            textPoints.text = showPoints + 'm';
-
-            textBest.text = 'record : ' + best + 'm';
         }
 
 
@@ -294,27 +295,34 @@ function setup() {
         resize(home2, home2Texture);
         resize(home1, home1Texture);
 
+        layer.width = screenWidth;
+        layer.height = screenHeight;
+
+        player.x = screenWidth / 4;
+        player.y = screenHeight - (screenHeight / 4);
 
 
-        textPoints.x = window.innerWidth - 20 - textPoints.width;
-        textBest.x = window.innerWidth - 25 - textBest.width;
-        textPlay.x = (window.innerWidth / 2) - (textPlay.width / 2);
+        textPoints.x = screenWidth - 20 - textPoints.width;
+        textBest.x = screenWidth - 25 - textBest.width;
+        textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
+        textPlay.y = screenHeight - (screenHeight / 8);
 
-        badLink.y = window.innerHeight - (window.innerHeight / 6.4);
-        // link.y = window.innerHeight - (window.innerHeight / 2);
 
-        renderer.resize(window.innerWidth, window.innerHeight);
+        badLink.y = screenHeight - (screenHeight / 6.4);
+        // link.y = screenHeight - (screenHeight / 2);
+
+        renderer.resize(screenWidth, screenHeight);
 
 
 
         if (collision(player, badLink)) {
-            badLink.x = window.innerWidth + 200;
+            badLink.x = screenWidth + 200;
             dead();
         }
 
         badLink.mouseup = badLink.touchend = badLink.touchendoutside = badLink.mouseupoutside = function() {
             console.log('click');
-            badLink.x = window.innerWidth + 200;
+            badLink.x = screenWidth + 200;
         }
 
         renderer.render(stage);
@@ -323,8 +331,8 @@ function setup() {
 
     function dead() {
         var looseText = new PIXI.Text('Perdu ! ', style);
-        looseText.x = window.innerWidth / 2 - (looseText.width / 2);
-        looseText.y = window.innerHeight / 2 - (looseText.height / 2);
+        looseText.x = screenWidth / 2 - (looseText.width / 2);
+        looseText.y = screenHeight / 2 - (looseText.height / 2);
         stage.addChild(looseText);
 
         setTimeout(function() {
