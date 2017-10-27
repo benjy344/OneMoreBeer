@@ -677,11 +677,15 @@ function setup() {
             var mvt = (Math.random() * (screenWidth / 3)) + getFarestLik() + ((screenWidth / 3) * accelerator);
             obstacle.x = mvt;
 
-            if (obstacle === badLink) {
-                badLinkCopy.x = mvt;
-            }
+                if (obstacle === badLink) {
+                    badLinkCopy.x = mvt;
+                }
 
-            }
+                if (obstacle === badLink3) {
+                    egoutsCopy.x = mvt + 40;
+                }
+
+        }
 
         badLink.mouseup = badLink.touchend = badLink.touchendoutside = badLink.mouseupoutside = function() {
             badLink.passifOk = 1;
