@@ -40249,10 +40249,6 @@ WebFontConfig = {
   custom: {
     families: ["Questrial"],
   }
-  // active: function() {
-  //   // do something
-  //   init();
-  // }
 };
 
 (function() {
@@ -40316,6 +40312,9 @@ var style3 = new PIXI.TextStyle({
 var PAUSED   = true;
 var INTRO    = true;
 var MUTE     = false;
+var DEAD     = false;
+var MOUVEINTRO = false;
+var introIsPlaying = false;
 //var ISLOADING = true;
 var nbPoints = 0;
 var best     = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
@@ -40345,6 +40344,7 @@ loader
     .add('json/cone.json')
     .add('json/egout.json')
     .add("json/mute.json")
+    .add("json/chute.json")
     .add("images/incendie3.png")
     .on("progress", loadProgressHandler)
     .load(setup);
@@ -40404,7 +40404,7 @@ function setup() {
     var home2Texture = TextureCache["images/home2.png"];
     var home2 = new PIXI.extras.TilingSprite(home2Texture, screenWidth, screenHeight);
     home2.tilePosition.x = 0;
-    home2.tilePosition.y = 0;
+    home2.tilePosition.y = 15;
     stage.addChild(home2);
 
 
@@ -40441,7 +40441,6 @@ function setup() {
 
     var framesFireEnd = TextureCache["images/incendie3.png"];
     var badLinkCopy = new Sprite(framesFireEnd);
-    // badLinkCopy.visible = false;
 
     var badLink = new PIXI.extras.AnimatedSprite(framesFire);
     badLink.anchor.set(0.5);
@@ -40454,7 +40453,7 @@ function setup() {
     badLinkCopy.anchor.set(0.5);
     badLinkCopy.width = badLink.width;
     badLinkCopy.height = badLink.height;
-
+    badLinkCopy.visible = false;
 
     badLink.x = screenWidth + 200;
     badLinkCopy.x = screenWidth + 200;
@@ -40476,7 +40475,36 @@ function setup() {
     player.animationSpeed = 0.5;
     player.height = 120;
     player.width = 250;
+    player.x = 0;
+    player.y = screenHeight - (screenHeight / 4) ;
     stage.addChild(player);
+
+
+    // PLAYER_chute
+    // create an array of textures from an image path
+    var framesChute = [];
+
+    for (var i = 0; i < 26; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesChute.push(PIXI.Texture.fromFrame('chute' + val + '.png'));
+    }
+    // create an AnimatedSprite (brings back memories from the days of Flash, right ?)
+    var playerChute = new PIXI.extras.AnimatedSprite(framesChute);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    playerChute.x = window.innerWidth / 4;
+    playerChute.y = 270;
+    playerChute.anchor.set(0.5);
+    playerChute.animationSpeed = 0.5;
+    playerChute.height = 120;
+    playerChute.width = 250;
+    stage.addChild(playerChute);
+    playerChute.visible = false;
+
 
     var bg6Texture = TextureCache["images/background6.png"];
     var bg6 = new PIXI.extras.TilingSprite(bg6Texture, screenWidth, screenHeight);
@@ -40496,7 +40524,7 @@ function setup() {
     var home1Texture = TextureCache["images/home1.png"];
     var home1 = new PIXI.extras.TilingSprite(home1Texture, screenWidth, screenHeight);
     home1.tilePosition.x = 0;
-    home1.tilePosition.y = 0;
+    home1.tilePosition.y = 15;
     stage.addChild(home1);
 
 
@@ -40554,11 +40582,19 @@ function setup() {
         if (INTRO) {
             launchGame();
             INTRO = false;
+        } else if (DEAD) {
+            restart();
         } else {
             pause();
         }
 
     }
+
+    var logoSprite = PIXI.Sprite.fromImage("images/logo.png");
+    //var logoSprite = new PIXI.extras.TilingSprite(logo, screenWidth, screenHeight);
+    logoSprite.x = (parseInt(window.innerWidth)/2) - 125;
+    logoSprite.y = 80;
+    stage.addChild(logoSprite);
 
       // PauseRestart
 
@@ -40672,88 +40708,132 @@ function setup() {
     }
 
     function launchGame() {
-        PAUSED = false;
+
         player.play();
-        layer.visible = false;
         textPlay.visible = false;
         gameSound.play();
+        MOUVEINTRO = true;
+
+
     }
 
     function gameLoop() {
-        //layerBlack.visible = false
-        //ISLOADING? layerBlack.visible = true : layerBlack.visible = false;
+
         screenWidth = parseInt(window.innerWidth);
         screenHeight = parseInt(window.innerHeight);
+        if (MOUVEINTRO) {
+            player.x += 2;
+            renderer.render(stage);
+            requestAnimationFrame(gameLoop);
+            if (player.x >= (screenWidth / 4) ){
+                MOUVEINTRO = false;
+                PAUSED = false;
+                player.x = screenWidth / 4;
+                player.y = screenHeight - (screenHeight / 4);
+            }
+        } else {
 
-        if (!PAUSED) {
-            nbPoints++;
-            var showPoints = Math.floor(nbPoints / 60);
+            if (INTRO) {
+                if (!introIsPlaying){
+                    introIsPlaying = true;
+                    introSound.play();
+                    introSound.loop = true;
+                }
+            } else {
+                if (DEAD || PAUSED) {
+                    if(!introIsPlaying) {
+                        introIsPlaying = true;
+                        introSound.play();
+                        introSound.loop = true;
+                    }
+                } else {
+                    if (logoSprite.alpha > 0 ) {
+                        logoSprite.alpha -= .01;
+                        layer.alpha -= .01;
+                    } else {
+                       logoSprite.visible = false;
+                       layer.visible = false;
+                       layer.alpha = 1;
+                    }
 
-            if (showPoints > best) {
-                best = showPoints;
-                sessionStorage.setItem("best", best);
+                    introSound.pause();
+                    introIsPlaying = false;
+                }
+
+            }
+            if (!PAUSED) {
+                nbPoints++;
+                var showPoints = Math.floor(nbPoints / 60);
+
+
+                if (accelerator < 5) parseInt(accelerator += 1 / 1000);
+                else console.log('fin accelération !');
+
+                if (showPoints > best) {
+                    best = showPoints;
+                    sessionStorage.setItem("best", best);
+                }
+
+
+                if (accelerator < 5) parseInt(accelerator += 1 / 2000);
+                else console.log('fin accelération !');
+
+                textPoints.text = showPoints + 'm';
+                textBest.text = 'record : ' + best + 'm';
+
+                home2.x -= 1;
+                home1.x -= 1;
+
+                badLink.x -= 1.6 * accelerator;
+                badLinkCopy.x -= 1.6 * accelerator;
+                badLink2.x -= 1.6 * accelerator;
+                badLink3.x -= 1.6 * accelerator;
+
+                bg6.tilePosition.x -= 3 * accelerator;
+                bg5.tilePosition.x -= 3 * accelerator;
+                bg4.tilePosition.x -= 0.7 * accelerator;
+                bg3.tilePosition.x -= 1.5 * accelerator;
+                bg2.tilePosition.x -= 1 * accelerator;
+
+                player.animationSpeed = 0.5 * accelerator;
             }
 
-            if (accelerator < 5) parseInt(accelerator += 1 / 1000);
-            else console.log('fin accelération !');
 
-            textPoints.text = showPoints + 'm';
-            textBest.text = 'record : ' + best + 'm';
+            resize(bg6, bg6Texture);
+            resize(bg5, bg5Texture);
+            resize(bg4, bg4Texture);
+            resize(bg3, bg3Texture);
+            resize(bg2, bg2Texture);
+            resize(bg1, bg1Texture);
+            resize(home2, home2Texture);
+            resize(home1, home1Texture);
 
-            home2.x -= 1;
-            home1.x -= 1;
-
-            bg6.tilePosition.x -= 3 * accelerator;
-            bg5.tilePosition.x -= 3 * accelerator;
-            bg4.tilePosition.x -= 0.7 * accelerator;
-            bg3.tilePosition.x -= 1.5 * accelerator;
-            bg2.tilePosition.x -= 1 * accelerator;
-
-            badLink.x -= 1.6 * accelerator;
-            badLinkCopy.x -= 1.6 * accelerator;
-            badLink2.x -= 1.6 * accelerator;
-            badLink3.x -= 1.6 * accelerator;
-
-            player.animationSpeed = 0.5 * accelerator;
-
-        }
+            layer.width = screenWidth;
+            layer.height = screenHeight;
 
 
-        resize(bg6, bg6Texture);
-        resize(bg5, bg5Texture);
-        resize(bg4, bg4Texture);
-        resize(bg3, bg3Texture);
-        resize(bg2, bg2Texture);
-        resize(bg1, bg1Texture);
-        resize(home2, home2Texture);
-        resize(home1, home1Texture);
-
-        layer.width = screenWidth;
-        layer.height = screenHeight;
-
-        player.x = screenWidth / 4;
-        player.y = screenHeight - (screenHeight / 4);
 
 
-        textPoints.x = 20;
-        textBest.x = 20;
-        textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
-        textPlay.y = screenHeight - (screenHeight / 8);
 
-        badLink.y = screenHeight - (screenHeight / 5);
-        badLinkCopy.y = screenHeight - (screenHeight / 5);
-        badLink2.y = screenHeight - (screenHeight / 6.4);
-        badLink3.y = screenHeight - (screenHeight / 10);
+            textPoints.x = 20;
+            textBest.x = 20;
+            textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
+            textPlay.y = screenHeight - (screenHeight / 8);
 
-        buttonPause.x = screenWidth - 60;
-        buttonPause.y = 40;
+            badLink.y = screenHeight - (screenHeight / 5);
+            badLinkCopy.y = screenHeight - (screenHeight / 5);
+            badLink2.y = screenHeight - (screenHeight / 6.4);
+            badLink3.y = screenHeight - (screenHeight / 10);
 
+            buttonPause.x = screenWidth - 60;
+            buttonPause.y = 25;
 
-        renderer.resize(screenWidth, screenHeight);
+            renderer.resize(screenWidth, screenHeight);
 
-        function getFarestLik() {
-            return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
-        }
+            function getFarestLik() {
+                return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
+            }
+
 
         if (collision(player, badLink)) {
             if(!badLink.passifOk) {
@@ -40802,10 +40882,9 @@ function setup() {
                 badLinkCopy.x = mvt;
             }
 
-        }
+            }
 
         badLink.mouseup = badLink.touchend = badLink.touchendoutside = badLink.mouseupoutside = function() {
-            console.log('click !');
             badLink.passifOk = 1;
             badLink.visible = false;
             badLinkCopy.visible = true;
@@ -40823,40 +40902,59 @@ function setup() {
             badLink3.gotoAndStop(1);
         }
 
-        function dead() {
-            var looseText = new PIXI.Text('Perdu ! ', style);
-            looseText.x = screenWidth / 2 - (looseText.width / 2);
-            looseText.y = screenHeight / 2 - (looseText.height / 2);
-            stage.addChild(looseText);
+            function dead() {
+                DEAD = true;
+                var looseText = new PIXI.Text('Perdu ! ', style);
+                looseText.x = screenWidth / 2 - (looseText.width / 2);
+                looseText.y = screenHeight / 2 - (looseText.height / 2);
+                stage.addChild(looseText);
 
-            getPosition(badLink);
-            getPosition(badLink2);
-            getPosition(badLink3);
+                getPosition(badLink);
+                getPosition(badLink2);
+                getPosition(badLink3);
+
+                playerChute.x = player.x;
+                playerChute.y = player.y;
+
+                player.visible = false;
+                playerChute.visible = true;
+                gameSound.pause();
+                looseSound.play();
+                setTimeout(function () {
+                    if (!introIsPlaying) {
+                        introSound.play();
+                        introSound.loop = true;
+                        introIsPlaying = true;
+                    }
+                }, 2500)
+
+                playerChute.play();
+                playerChute.loop = false;
 
 
-            PAUSED = true;
-            layer.visible = true;
-            player.gotoAndStop(1);
-            accelerator = 1;
 
-            setTimeout(function() {
-                nbPoints = 0;
-                home2.x = 0;
-                home1.x = 0;
-                stage.removeChild(looseText);
-                PAUSED = false;
-                layer.visible = false;
-                player.play();
-            }, 1500);
+                PAUSED = true;
+                layer.visible = true;
+                player.gotoAndStop(1);
+                accelerator = 1;
+
+                // setTimeout(function() {
+                //     nbPoints = 0;
+                //     home2.x = 0;
+                //     home1.x = 0;
+                //     stage.removeChild(looseText);
+                //     PAUSED = false;
+                //     layer.visible = false;
+                //     player.play();
+                // }, 1500);
+            }
+
+
+            renderer.render(stage);
+            requestAnimationFrame(gameLoop);
         }
 
-
-        renderer.render(stage);
-        requestAnimationFrame(gameLoop);
     }
-
-
-
 
 
     buttonPause.mouseup = buttonPause.touchend = buttonPause.touchendoutside = buttonPause.mouseupoutside = function() {
@@ -40879,6 +40977,8 @@ function setup() {
                 gameSound.pause();
                 PauseSound.play();
                 introSound.play();
+                introSound.loop = true;
+                introIsPlaying = true;
             }
             introSound.loop = true;
             player.gotoAndStop(1);
@@ -40891,6 +40991,7 @@ function setup() {
             if(!MUTE) {
                 gameSound.play();
                 introSound.pause();
+                introIsPlaying = false;
             }
             player.play();
             layer.visible = false;
@@ -40923,6 +41024,7 @@ function setup() {
     }
 
 }
+
 
 
 
