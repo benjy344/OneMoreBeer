@@ -42181,9 +42181,11 @@ var style3 = new PIXI.TextStyle({
     fill: ['#ffffff']
 });
 
-var PAUSED = true;
+var PAUSED   = true;
+var INTRO    = false;
+var MUTE     = false;
 var nbPoints = 0;
-var best = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
+var best     = (sessionStorage.getItem("best")) ? sessionStorage.getItem("best") : 0;
 
 document.body.appendChild(renderer.view);
 
@@ -42197,6 +42199,8 @@ loader
     .add("images/link.png")
     .add("images/background.png")
     .add("playerWalk.json")
+    .add("json/buttonPause.json")
+    .add("json/mute.json")
     .on("progress", loadProgressHandler)
     .load(setup);
 
@@ -42215,8 +42219,13 @@ function loadProgressHandler(loader, resource) {
 
 function setup() {
 
-    var gameSound = PIXI.sound.Sound.from('sounds/game.mp3');
-    gameSound.play();
+    // SOUNDS
+    var gameSound  = PIXI.sound.Sound.from('sounds/game.mp3');
+    var PauseSound = PIXI.sound.Sound.from('sounds/ClickOnPause.mp3');
+    var looseSound = PIXI.sound.Sound.from('sounds/loose.mp3');
+    var introSound = PIXI.sound.Sound.from('sounds/intro_pause.mp3');
+
+    //gameSound.play();
     gameSound.loop = true
 
     var bg1Texture = PIXI.Texture.fromImage("images/background1.png");
@@ -42230,7 +42239,7 @@ function setup() {
     bg2.tilePosition.x = 0;
     bg2.tilePosition.y = 0;
     stage.addChild(bg2);
-
+    
     var bg3Texture = PIXI.Texture.fromImage("images/background3.png");
     var bg3 = new PIXI.extras.TilingSprite(bg3Texture, window.innerWidth, window.innerHeight);
     bg3.tilePosition.x = 0;
@@ -42296,11 +42305,13 @@ function setup() {
     stage.addChild(bg6);
 
     var textPoints = new PIXI.Text(nbPoints+ 'm', style);
-    textPoints.y = 20;
+    textPoints.position.y = 20;
+    console.log('textPoints.position.x', textPoints.position.x)
     stage.addChild(textPoints);
 
     var textBest = new PIXI.Text('record : ' + best + 'm', style2);
     textBest.y = 65;
+    textBest.x = 635;
     stage.addChild(textBest);
 
     var home1Texture = PIXI.Texture.fromImage("images/home1.png");
@@ -42308,6 +42319,38 @@ function setup() {
     home1.tilePosition.x = 0;
     home1.tilePosition.y = 0;
     stage.addChild(home1);
+
+
+    // PauseButton
+    
+    var framesButtonPause = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonPause.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
+    }
+    var buttonPause = new PIXI.extras.AnimatedSprite(framesButtonPause);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonPause.x = window.innerWidth - 60;
+    buttonPause.y = 40;
+    buttonPause.height = 40;
+    buttonPause.width = 40;
+    buttonPause.interactive = true;
+    buttonPause.animationSpeed = 1;
+    // buttonPause.on('touchstart', (event) => {
+    //     console.log('touchstart')
+    //     buttonPause.gotoAndStop(1);
+    //     pause();
+    // });
+    buttonPause.buttonMode = true;
+    stage.addChild(buttonPause);
+
+  
+
 
     var layer = new PIXI.Graphics();
     layer.beginFill(0x000000, 0.4);
@@ -42318,33 +42361,92 @@ function setup() {
     layer.interactive = true;
 
     layer.mouseup = layer.touchend = layer.touchendoutside = layer.mouseupoutside = function() {
-        launchGame();
+        if (INTRO) { 
+            launchGame();
+            INTRO = false;
+        } else {
+            pause();
+        }
+        
     }
+
+      // PauseRestart
+    
+    var framesButtonRestart = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonRestart.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
+    }
+    var buttonRestart = new PIXI.extras.AnimatedSprite(framesButtonRestart);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonRestart.x = (window.innerWidth / 2) + 60;
+    buttonRestart.y = window.innerHeight / 2;
+    buttonRestart.height = 40;
+    buttonRestart.width = 40;
+    buttonRestart.interactive = true;
+    buttonRestart.animationSpeed = 1;
+    buttonRestart.visible = false;
+    buttonRestart.buttonMode = true;
+    stage.addChild(buttonRestart);
+
+
+    var framesButtonMute = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonMute.push(PIXI.Texture.fromFrame('mute' + val + '.png'));
+    }
+    var buttonMute = new PIXI.extras.AnimatedSprite(framesButtonMute);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonMute.x = (window.innerWidth / 2) - 100;
+    buttonMute.y = window.innerHeight / 2;
+    buttonMute.height = 40;
+    buttonMute.width = 40;
+    buttonMute.interactive = true;
+    buttonMute.animationSpeed = 1;
+    buttonMute.visible = false;
+    buttonMute.buttonMode = true;
+    stage.addChild(buttonMute);
+
+    var framesButtonSounds = [];
+    for (var i = 0; i < 1; i++) {
+        var val = i;
+        // magically works since the spritesheet was loaded with the pixi loader
+        framesButtonSounds.push(PIXI.Texture.fromFrame('pause' + val + '.png'));
+    }
+    var buttonSounds = new PIXI.extras.AnimatedSprite(framesButtonSounds);
+
+    /*
+     * An AnimatedSprite inherits all the properties of a PIXI sprite
+     * so you can change its position, its anchor, mask it, etc
+     */
+    buttonSounds.x = (window.innerWidth / 2) - 20;
+    buttonSounds.y = (window.innerHeight / 2);
+    buttonSounds.height = 40;
+    buttonSounds.width = 40;
+    buttonSounds.interactive = true;
+    buttonSounds.animationSpeed = 1;
+    buttonSounds.visible = false;
+    // buttonSounds.on('touchstart', (event) => {
+    //     console.log('touchstart')
+    //     buttonSounds.gotoAndStop(1);
+    //     Sounds();
+    // });
+    buttonSounds.buttonMode = true;
+    stage.addChild(buttonSounds);
 
     var textPlay = new PIXI.Text("Tape n'importe où pour rentrer chez toi", style3);
     textPlay.y = window.innerHeight - 50;
     stage.addChild(textPlay);
-
-    // incendie
-    //
-    // var incendieImages = ['incendie0.png', 'incendie1.png'];
-    // var framesIncendie = [];
-    // for (var i = 0; i < 1; i++) {
-    //     var val = i;
-    //     // magically works since the spritesheet was loaded with the pixi loader
-    //     framesIncendie.push(PIXI.Texture.fromFrame('incendie' + val + '.png'));
-    // }
-    //
-    // player.x = app.renderer.width / 2;
-    // player.y = 250;;
-    // player.anchor.set(0.5);
-    // player.animationSpeed = 0.5;
-    // player.height = 170;
-    // player.width = 170;
-    // player.play();
-    // stage.addChild(player);
-    //
-    // var incendie = new PIXI.extras.AnimatedSprite(framesIncendie);
 
 
 
@@ -42369,6 +42471,7 @@ function setup() {
         player.play();
         layer.visible = false;
         textPlay.visible = false;
+        gameSound.play();
     }
 
     function gameLoop() {
@@ -42398,22 +42501,25 @@ function setup() {
         }
 
 
-        resize(bg6, bg5Texture);
+        resize(bg6, bg6Texture);
         resize(bg5, bg5Texture);
-        resize(bg4, bg5Texture);
-        resize(bg3, bg5Texture);
-        resize(bg2, bg5Texture);
-        resize(bg1, bg5Texture);
+        resize(bg4, bg4Texture);
+        resize(bg3, bg3Texture);
+        resize(bg2, bg2Texture);
+        resize(bg1, bg1Texture);
         resize(home2, home2Texture);
         resize(home1, home1Texture);
 
 
-        textPoints.x = window.innerWidth - 20 - textPoints.width;
-        textBest.x = window.innerWidth - 25 - textBest.width;
+
+        textPoints.x = 25;
+        textBest.x = 25;
         textPlay.x = (window.innerWidth / 2) - (textPlay.width / 2);
 
         badLink.y = window.innerHeight - (window.innerHeight / 6.4);
         // link.y = window.innerHeight - (window.innerHeight / 2);
+
+
 
         renderer.resize(window.innerWidth, window.innerHeight);
 
@@ -42428,6 +42534,10 @@ function setup() {
             console.log('click');
             badLink.x = window.innerWidth + 200;
         }
+
+
+       
+
 
         renderer.render(stage);
         requestAnimationFrame(gameLoop);
@@ -42446,8 +42556,55 @@ function setup() {
         }, 1500);
     }
 
+
+
+    buttonPause.mouseup = buttonPause.touchend = buttonPause.touchendoutside = buttonPause.mouseupoutside = function() {
+        pause();
+    }
+    buttonMute.mouseup = buttonMute.touchend = buttonMute.touchendoutside = buttonMute.mouseupoutside = function() {
+        toggleMute();
+    }
+
     function pause () {
-         PAUSED = true;
+         PAUSED = !PAUSED;
+
+         if (PAUSED) {
+
+            if(!MUTE) {
+                gameSound.pause();
+                PauseSound.play();
+                introSound.play();
+            }            
+
+            introSound.loop = true;
+            player.gotoAndStop(1);
+            layer.visible = true;
+            buttonRestart.visible = true;
+            buttonMute.visible = true;
+            buttonSounds.visible = true;
+         } else {
+
+            if(!MUTE) {
+                gameSound.play();
+                introSound.pause();
+                player.play();
+            }
+
+            layer.visible = false;
+            buttonRestart.visible = false;
+            buttonMute.visible = false;
+            buttonSounds.visible = false;
+         }
+    }
+
+    function toggleMute () {
+        MUTE = !MUTE;
+        PIXI.sound.toggleMuteAll = MUTE;
+        // if (MUTE){
+        //     PIXI.sound.muteAll();            
+        // } else {
+        //     PIXI.sound.volumeAll();
+        // }
     }
 
 }
