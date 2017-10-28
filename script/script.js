@@ -40573,7 +40573,10 @@ function setup() {
             launchGame();
             INTRO = false;
         } else if (DEAD) {
-            // restart();
+            getPosition(badLink);
+            getPosition(badLink2);
+            getPosition(badLink3);
+
             nbPoints = 0;
             home2.x = 0;
             home1.x = 0;
@@ -40769,6 +40772,25 @@ function setup() {
         MOUVEINTRO = true;
     }
 
+    function getFarestLink() {
+        return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
+    }
+
+    function getPosition(obstacle) {
+        var mvt = (Math.random() * (screenWidth / 3)) + getFarestLink() + ((screenWidth / 3) * accelerator);
+        obstacle.x = mvt;
+
+            if (obstacle === badLink) {
+                badLinkCopy.x = mvt;
+            }
+
+            if (obstacle === badLink3) {
+                egoutsCopy.x = mvt + 40;
+            }
+
+    }
+
+
     function gameLoop() {
 
         screenWidth = parseInt(window.innerWidth);
@@ -40890,12 +40912,6 @@ function setup() {
             }
 
 
-
-            function getFarestLik() {
-                return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
-            }
-
-
         if (collision(player, badLink)) {
             if(!badLink.passifOk) {
                  dead();
@@ -40933,20 +40949,6 @@ function setup() {
             getPosition(badLink3);
         }
 
-        function getPosition(obstacle) {
-            var mvt = (Math.random() * (screenWidth / 3)) + getFarestLik() + ((screenWidth / 3) * accelerator);
-            obstacle.x = mvt;
-
-                if (obstacle === badLink) {
-                    badLinkCopy.x = mvt;
-                }
-
-                if (obstacle === badLink3) {
-                    egoutsCopy.x = mvt + 40;
-                }
-
-        }
-
         badLink.mouseup = badLink.touchend = badLink.touchendoutside = badLink.mouseupoutside = function() {
             badLink.passifOk = 1;
             badLink.visible = false;
@@ -40959,12 +40961,10 @@ function setup() {
         }
 
         badLink3.mouseup = badLink3.touchend = badLink3.touchendoutside = badLink3.mouseupoutside = function() {
-            console.log('click bad3 !');
             badLink3.passifOk = 1;
         }
 
         egoutsCopy.mouseup = egoutsCopy.touchend = egoutsCopy.touchendoutside = egoutsCopy.mouseupoutside = function() {
-            console.log('click !');
             badLink3.passifOk = 1;
         }
 
@@ -40975,9 +40975,9 @@ function setup() {
                 looseText.y = screenHeight / 2 - (looseText.height / 2);
                 stage.addChild(looseText);
 
-                getPosition(badLink);
-                getPosition(badLink2);
-                getPosition(badLink3);
+                badLink.passifOk = true;
+                badLink2.passifOk = true;
+                badLink3.passifOk = true;
 
                 playerChute.x = player.x;
                 playerChute.y = player.y;
