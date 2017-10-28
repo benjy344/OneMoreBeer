@@ -40462,11 +40462,11 @@ function setup() {
     badLinkCopy.height = badLink.height;
     badLinkCopy.visible = false;
 
-    badLink.x = screenWidth + 600;
-    badLinkCopy.x = screenWidth + 600;
+    badLink.x = screenWidth + 700;
+    badLinkCopy.x = screenWidth + 700;
     badLink2.x = screenWidth + 200;
-    badLink3.x = screenWidth + 400;
-    egoutsCopy.x = screenWidth + 440;
+    badLink3.x = screenWidth + 450;
+    egoutsCopy.x = screenWidth + 490;
 
 
     // PLAYER
@@ -40530,15 +40530,17 @@ function setup() {
     lampe2.x = (screenWidth / 2);
 
     var textPoints = new PIXI.Text(nbPoints+ 'm', style);
+    textPoints.x = 20;
     textPoints.position.y = 20;
     stage.addChild(textPoints);
 
     var textBest = new PIXI.Text('record : ' + best + 'm', style2);
     textBest.y = 50;
-    textBest.x = 600;
+    textBest.x = 20;
     stage.addChild(textBest);
 
-    var looseText = new PIXI.Text('Perdu ! ', style);
+
+    var looseText = new PIXI.Text('Perdu ! Tape pour rejouter', style);
 
     var home1Texture = TextureCache["images/home1.png"];
     var home1 = new PIXI.extras.TilingSprite(home1Texture, screenWidth, screenHeight);
@@ -40550,6 +40552,7 @@ function setup() {
     var buttonPause = new PIXI.Sprite(PIXI.loader.resources["images/pause.png"].texture);
     buttonPause.height = 30;
     buttonPause.width = 30;
+    buttonPause.y = 25;
     buttonPause.interactive = true;
     buttonPause.buttonMode = true;
     stage.addChild(buttonPause);
@@ -40589,8 +40592,6 @@ function setup() {
     }
 
     var logoSprite = PIXI.Sprite.fromImage("images/logo.png");
-    //var logoSprite = new PIXI.extras.TilingSprite(logo, screenWidth, screenHeight);
-    logoSprite.x = (parseInt(window.innerWidth)/2) - 125;
     logoSprite.y = 80;
     stage.addChild(logoSprite);
 
@@ -40609,8 +40610,6 @@ function setup() {
     tuto.x = 0;
     tuto.y = 0;
     stage.addChild(tuto);
-    tuto.height = (parseInt(window.innerHeight));
-    tuto.width = (parseInt(window.innerWidth));
     tuto.visible = false;
     layerTuto.visible = false;
 
@@ -40701,10 +40700,62 @@ function setup() {
         if (textPlay.alpha >= 1) textPlay.fadeOpacity = 1;
     });
 
+    window.onresize = function (event) {
+        resizeAll();
+    }
 
+    window.orientationchange = function (event) {
+        resizeAll();
+    }
+
+
+    function resizeAll() {
+        resize(bg5, bg5Texture);
+        resize(bg4, bg4Texture);
+        resize(bg3, bg3Texture);
+        resize(bg2, bg2Texture);
+        resize(bg1, bg1Texture);
+        resize(home2, home2Texture);
+        resize(home1, home1Texture);
+
+        screenWidth = parseInt(window.innerWidth);
+        screenHeight = parseInt(window.innerHeight);
+
+        layer.width = screenWidth;
+        layer.height = screenHeight;
+
+        layerTuto.width = screenWidth;
+        layerTuto.height = screenHeight;
+
+        lampe.y = (screenHeight / 5.6) ;
+        lampe2.y = (screenHeight / 5.6) ;
+
+        textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
+        textPlay.y = screenHeight - (screenHeight / 8);
+
+        badLink.y = screenHeight - (screenHeight / 5);
+        badLinkCopy.y = screenHeight - (screenHeight / 5);
+        badLink2.y = screenHeight - (screenHeight / 6.4);
+        badLink3.y = screenHeight - (screenHeight / 10);
+        egoutsCopy.y = screenHeight - (screenHeight / 10);
+
+        buttonPause.x = screenWidth - 60;
+
+        logoSprite.x = (parseInt(window.innerWidth)/2) - 125;
+
+        tuto.height = (parseInt(window.innerHeight));
+        tuto.width = (parseInt(window.innerWidth));
+
+        renderer.resize(screenWidth, screenHeight);
+    }
+
+    resizeAll();
     gameLoop();
 
     function resize(screen, texture) {
+        screenWidth = parseInt(window.innerWidth);
+        screenHeight = parseInt(window.innerHeight);
+
         screen.height = texture.height;
         screen.width = texture.width;
         screen.scale.y = (screenHeight / texture.height);
@@ -40712,22 +40763,28 @@ function setup() {
     }
 
     function launchGame() {
-
         player.play();
         textPlay.visible = false;
         gameSound.play();
         MOUVEINTRO = true;
-
-
     }
 
     function gameLoop() {
 
         screenWidth = parseInt(window.innerWidth);
         screenHeight = parseInt(window.innerHeight);
+
         if (MOUVEINTRO) {
             player.x += 2;
+            player.y = screenHeight - (screenHeight / 4);
             renderer.render(stage);
+
+            badLink.x = screenWidth + 700;
+            badLinkCopy.x = screenWidth + 700;
+            badLink2.x = screenWidth + 200;
+            badLink3.x = screenWidth + 450;
+            egoutsCopy.x = screenWidth + 490;
+
             requestAnimationFrame(gameLoop);
             if (player.x >= (screenWidth / 4) ){
                 MOUVEINTRO = false;
@@ -40833,37 +40890,6 @@ function setup() {
             }
 
 
-            resize(bg5, bg5Texture);
-            resize(bg4, bg4Texture);
-            resize(bg3, bg3Texture);
-            resize(bg2, bg2Texture);
-            resize(bg1, bg1Texture);
-            resize(home2, home2Texture);
-            resize(home1, home1Texture);
-
-            layer.width = screenWidth;
-            layer.height = screenHeight;
-
-
-            lampe.y = (screenHeight / 5.6) ;
-            lampe2.y = (screenHeight / 5.6) ;
-
-
-            textPoints.x = 20;
-            textBest.x = 20;
-            textPlay.x = (screenWidth / 2) - (textPlay.width / 2);
-            textPlay.y = screenHeight - (screenHeight / 8);
-
-            badLink.y = screenHeight - (screenHeight / 5);
-            badLinkCopy.y = screenHeight - (screenHeight / 5);
-            badLink2.y = screenHeight - (screenHeight / 6.4);
-            badLink3.y = screenHeight - (screenHeight / 10);
-            egoutsCopy.y = screenHeight - (screenHeight / 10);
-
-            buttonPause.x = screenWidth - 60;
-            buttonPause.y = 25;
-
-            renderer.resize(screenWidth, screenHeight);
 
             function getFarestLik() {
                 return Math.max(badLink.x, badLink2.x, badLink3.x, screenWidth);
