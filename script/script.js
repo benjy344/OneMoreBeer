@@ -40485,7 +40485,6 @@ function setup() {
     player.height = 120;
     player.width = 250;
     player.x = 0;
-    player.y = screenHeight - (screenHeight / 4) ;
     stage.addChild(player);
 
 
@@ -40713,6 +40712,18 @@ function setup() {
 
 
     function resizeAll() {
+        screenWidth = parseInt(window.innerWidth);
+        screenHeight = parseInt(window.innerHeight);
+
+
+        if (screenWidth < screenHeight || INTRO) {
+            PAUSED = true;
+            MOUVEINTRO = false;
+        }
+        else {
+            PAUSED = false;
+        }
+
         resize(bg5, bg5Texture);
         resize(bg4, bg4Texture);
         resize(bg3, bg3Texture);
@@ -40721,8 +40732,7 @@ function setup() {
         resize(home2, home2Texture);
         resize(home1, home1Texture);
 
-        screenWidth = parseInt(window.innerWidth);
-        screenHeight = parseInt(window.innerHeight);
+        player.y = screenHeight - (screenHeight / 4) ;
 
         layer.width = screenWidth;
         layer.height = screenHeight;
@@ -40756,9 +40766,6 @@ function setup() {
     gameLoop();
 
     function resize(screen, texture) {
-        screenWidth = parseInt(window.innerWidth);
-        screenHeight = parseInt(window.innerHeight);
-
         screen.height = texture.height;
         screen.width = texture.width;
         screen.scale.y = (screenHeight / texture.height);
@@ -40798,7 +40805,6 @@ function setup() {
 
         if (MOUVEINTRO) {
             player.x += 2;
-            player.y = screenHeight - (screenHeight / 4);
             renderer.render(stage);
 
             badLink.x = screenWidth + 700;
@@ -40812,7 +40818,6 @@ function setup() {
                 MOUVEINTRO = false;
                 PAUSED = false;
                 player.x = screenWidth / 4;
-                player.y = screenHeight - (screenHeight / 4);
                 ISANIME = true;
             }
         } else {
@@ -40883,6 +40888,8 @@ function setup() {
 
                 home2.x -= 1;
                 home1.x -= 1;
+
+                if (accelerator < 5) accelerator += 1 / 1000;
 
                 badLink.x -= 1.6 * accelerator;
                 badLinkCopy.x -= 1.6 * accelerator;
